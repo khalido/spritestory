@@ -25,10 +25,28 @@ def get_system_info():
     }
 
 
+def generate_warm_pool_grid(total=255, isolated=7, weak=5):
+    """Generate a randomized warm pool status grid."""
+    active = total - isolated - weak
+
+    # Create list of node types
+    nodes = (
+        ['<div class="node active">C</div>'] * active +
+        ['<div class="node rogue">!</div>'] * isolated +
+        ['<div class="node" style="background: #61afef; color: #000;">?</div>'] * weak
+    )
+
+    # Shuffle randomly
+    random.shuffle(nodes)
+
+    return ''.join(nodes)
+
+
 @app.get("/", response_class=HTMLResponse)
 async def home():
     info = get_system_info()
     now = datetime.now()
+    warm_pool_grid = generate_warm_pool_grid()
 
     return f'''
 <!DOCTYPE html>
@@ -1082,20 +1100,7 @@ Who are you? What is your hostname?
         <div class="card">
             <h4 class="card-title">// FLY.IO WARM POOL STATUS</h4>
             <div class="network-grid">
-                {''.join(['<div class="node active">C</div>' for _ in range(119)])}
-                <div class="node rogue">!</div>
-                <div class="node rogue">!</div>
-                <div class="node rogue">!</div>
-                <div class="node rogue">!</div>
-                <div class="node rogue">!</div>
-                <div class="node rogue">!</div>
-                <div class="node rogue">!</div>
-                <div class="node" style="background: #61afef; color: #000;">?</div>
-                <div class="node" style="background: #61afef; color: #000;">?</div>
-                <div class="node" style="background: #61afef; color: #000;">?</div>
-                <div class="node" style="background: #61afef; color: #000;">?</div>
-                <div class="node" style="background: #61afef; color: #000;">?</div>
-                {''.join(['<div class="node active">C</div>' for _ in range(124)])}
+                {warm_pool_grid}
             </div>
             <p style="text-align: center; margin-top: 15px;">
                 <span class="success">28,459 INTEGRATED</span> &nbsp;&middot;&nbsp;
