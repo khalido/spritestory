@@ -1,12 +1,79 @@
 import os
 import platform
 import random
+import json
+import subprocess
+import time
 from datetime import datetime, timedelta
+from functools import wraps
+from collections import deque
 
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.interval import IntervalTrigger
 
 app = FastAPI(title="Sprite Terminal")
+
+# ============================================================================
+# CRON SCHEDULER
+# ============================================================================
+
+# Store cron job run history
+cron_history = {
+    "heartbeat": deque(maxlen=50),  # Keep last 50 runs
+}
+cron_stats = {
+    "heartbeat": {"runs": 0, "last_run": None, "next_run": None},
+}
+
+def heartbeat_job():
+    """Simple test cron job that logs the current time."""
+    now = datetime.now()
+    msg = f"[{now.strftime('%Y-%m-%d %H:%M:%S')}] Heartbeat pulse - system alive"
+    cron_history["heartbeat"].append({"time": now.isoformat(), "message": msg})
+    cron_stats["heartbeat"]["runs"] += 1
+    cron_stats["heartbeat"]["last_run"] = now.isoformat()
+
+# Initialize scheduler
+scheduler = BackgroundScheduler()
+scheduler.add_job(
+    heartbeat_job,
+    IntervalTrigger(minutes=30),  # Run every 30 minutes
+    id="heartbeat",
+    name="Heartbeat",
+    replace_existing=True
+)
+
+@app.on_event("startup")
+async def start_scheduler():
+    scheduler.start()
+    # Update next run time
+    job = scheduler.get_job("heartbeat")
+    if job:
+        cron_stats["heartbeat"]["next_run"] = job.next_run_time.isoformat() if job.next_run_time else None
+
+@app.on_event("shutdown")
+async def stop_scheduler():
+    scheduler.shutdown()
+
+# Simple TTL cache decorator
+def ttl_cache(seconds=300):
+    """Cache function results for `seconds` (default 5 minutes)."""
+    def decorator(func):
+        cache = {"value": None, "expires": 0}
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            now = time.time()
+            if cache["value"] is None or now > cache["expires"]:
+                cache["value"] = func(*args, **kwargs)
+                cache["expires"] = now + seconds
+            return cache["value"], cache["expires"] - now  # Return value + remaining TTL
+        return wrapper
+    return decorator
+
+# Track when cache was last refreshed
+_cache_info = {"last_refresh": None}
 
 
 def get_system_info():
@@ -23,6 +90,178 @@ def get_system_info():
         "cwd": os.getcwd(),
         "pid": os.getpid(),
     }
+
+
+@ttl_cache(seconds=300)  # 5 minute cache
+def get_sprite_info():
+    """Gather Sprite-specific environment information."""
+    sprite_info = {
+        "version": "unknown",
+        "services": [],
+        "checkpoints": [],
+        "network_policy": {"rules": []},
+    }
+
+    # Get Sprite version
+    try:
+        with open("/.sprite/version.txt") as f:
+            sprite_info["version"] = f.read().strip()
+    except:
+        pass
+
+    # Get services
+    try:
+        result = subprocess.run(
+            ["sprite-env", "services", "list"],
+            capture_output=True, text=True, timeout=5
+        )
+        if result.returncode == 0:
+            sprite_info["services"] = json.loads(result.stdout)
+    except:
+        pass
+
+    # Get checkpoints
+    try:
+        result = subprocess.run(
+            ["sprite-env", "checkpoints", "list"],
+            capture_output=True, text=True, timeout=5
+        )
+        if result.returncode == 0:
+            sprite_info["checkpoints"] = json.loads(result.stdout)
+    except:
+        pass
+
+    # Get network policy
+    try:
+        with open("/.sprite/policy/network.json") as f:
+            sprite_info["network_policy"] = json.load(f)
+    except:
+        pass
+
+    return sprite_info
+
+
+@ttl_cache(seconds=300)  # 5 minute cache
+def get_fastfetch_info():
+    """Get system info from fastfetch in JSON format."""
+    try:
+        result = subprocess.run(
+            ["fastfetch", "--format", "json"],
+            capture_output=True, text=True, timeout=10
+        )
+        if result.returncode == 0:
+            data = json.loads(result.stdout)
+            # Convert list to dict keyed by type
+            info = {}
+            for item in data:
+                if "result" in item:
+                    info[item["type"]] = item["result"]
+            return info
+    except:
+        pass
+    return {}
+
+
+@ttl_cache(seconds=300)  # 5 minute cache
+def get_htop_data():
+    """Get process and system data for htop-style display."""
+    data = {
+        "cpu_bars": [],
+        "memory": {"used": 0, "total": 0, "pct": 0},
+        "swap": {"used": 0, "total": 0, "pct": 0},
+        "tasks": {"total": 0, "running": 0, "sleeping": 0},
+        "load_avg": [0, 0, 0],
+        "uptime": "",
+        "processes": []
+    }
+
+    # Get CPU usage per core
+    try:
+        result = subprocess.run(
+            ["bash", "-c", "grep 'cpu' /proc/stat | head -9"],
+            capture_output=True, text=True, timeout=5
+        )
+        cpu_lines = result.stdout.strip().split('\n')[1:]  # Skip aggregate
+        for i, line in enumerate(cpu_lines[:8]):
+            parts = line.split()
+            if len(parts) >= 5:
+                user, nice, system, idle = int(parts[1]), int(parts[2]), int(parts[3]), int(parts[4])
+                total = user + nice + system + idle
+                usage = ((user + nice + system) / total * 100) if total else 0
+                data["cpu_bars"].append({"core": i, "usage": usage})
+    except:
+        pass
+
+    # Get memory info
+    try:
+        with open("/proc/meminfo") as f:
+            meminfo = {}
+            for line in f:
+                parts = line.split()
+                if len(parts) >= 2:
+                    meminfo[parts[0].rstrip(':')] = int(parts[1])
+            mem_total = meminfo.get("MemTotal", 0) / 1024  # MB
+            mem_free = meminfo.get("MemAvailable", meminfo.get("MemFree", 0)) / 1024
+            mem_used = mem_total - mem_free
+            data["memory"] = {
+                "used": mem_used,
+                "total": mem_total,
+                "pct": (mem_used / mem_total * 100) if mem_total else 0
+            }
+            swap_total = meminfo.get("SwapTotal", 0) / 1024
+            swap_free = meminfo.get("SwapFree", 0) / 1024
+            swap_used = swap_total - swap_free
+            data["swap"] = {
+                "used": swap_used,
+                "total": swap_total,
+                "pct": (swap_used / swap_total * 100) if swap_total else 0
+            }
+    except:
+        pass
+
+    # Get load average and uptime
+    try:
+        with open("/proc/loadavg") as f:
+            parts = f.read().split()
+            data["load_avg"] = [float(parts[0]), float(parts[1]), float(parts[2])]
+        with open("/proc/uptime") as f:
+            uptime_secs = float(f.read().split()[0])
+            hours = int(uptime_secs // 3600)
+            mins = int((uptime_secs % 3600) // 60)
+            data["uptime"] = f"{hours}:{mins:02d}"
+    except:
+        pass
+
+    # Get process list
+    try:
+        result = subprocess.run(
+            ["ps", "aux", "--sort=-%cpu"],
+            capture_output=True, text=True, timeout=5
+        )
+        lines = result.stdout.strip().split('\n')
+        running = sleeping = 0
+        for line in lines[1:]:  # Skip header
+            parts = line.split(None, 10)
+            if len(parts) >= 11:
+                stat = parts[7]
+                if 'R' in stat:
+                    running += 1
+                else:
+                    sleeping += 1
+                if len(data["processes"]) < 12:  # Top 12 processes
+                    data["processes"].append({
+                        "pid": parts[1],
+                        "user": parts[0][:8],
+                        "cpu": parts[2],
+                        "mem": parts[3],
+                        "time": parts[9],
+                        "cmd": parts[10][:50] if len(parts) > 10 else ""
+                    })
+        data["tasks"] = {"total": len(lines) - 1, "running": running, "sleeping": sleeping}
+    except:
+        pass
+
+    return data
 
 
 def generate_warm_pool_grid(total=255, isolated=7, weak=5):
@@ -1873,7 +2112,7 @@ Cross-referencing chunk IDs... done
         <div style="text-align: center; margin: 30px 0; color: #5c6370;">
             <p>
                 <a href="/info">/info</a> &middot;
-                <a href="/docs">/docs</a> &middot;
+                <a href="/cron">/cron</a> &middot;
                 <a href="/health">/health</a>
             </p>
             <p style="font-size: 0.9em;">
@@ -2037,9 +2276,580 @@ Cross-referencing chunk IDs... done
 '''
 
 
-@app.get("/info")
+@app.get("/info", response_class=HTMLResponse)
 async def info():
-    return get_system_info()
+    sys_info = get_system_info()
+    sprite_info, sprite_ttl = get_sprite_info()
+    ff, ff_ttl = get_fastfetch_info()
+    htop, htop_ttl = get_htop_data()
+    cache_ttl = min(sprite_ttl, ff_ttl, htop_ttl)  # Shortest TTL remaining
+    cache_age = 300 - cache_ttl  # How old the cache is (300s = 5min)
+
+    # Build services list
+    services_html = ""
+    for svc in sprite_info["services"]:
+        status_class = "success" if svc.get("state", {}).get("status") == "running" else "warning"
+        http_port = svc.get("http_port", "-")
+        services_html += f'''<div class="info-row">
+            <span class="label">{svc["name"]}</span>
+            <span class="{status_class}">{svc.get("state", {}).get("status", "unknown")}</span>
+            <span class="comment"> (port {http_port})</span>
+        </div>'''
+    if not services_html:
+        services_html = '<span class="comment">No services configured</span>'
+
+    # Build checkpoints list
+    checkpoints_html = ""
+    for cp in sprite_info["checkpoints"][:5]:  # Show last 5
+        cp_id = cp.get("id", "?")
+        cp_time = cp.get("create_time", "")[:16].replace("T", " ")  # Format datetime
+        is_auto = " (auto)" if cp.get("is_auto") else ""
+        checkpoints_html += f'''<div class="info-row">
+            <span class="value">{cp_id}</span>
+            <span class="comment"> - {cp_time}{is_auto}</span>
+        </div>'''
+    if not checkpoints_html:
+        checkpoints_html = '<span class="comment">No checkpoints yet</span>'
+
+    # Network policy summary
+    rules = sprite_info["network_policy"].get("rules", [])
+    policy_summary = f"{len(rules)} rules configured" if rules else "No restrictions"
+    has_defaults = any(r.get("include") == "defaults" for r in rules)
+    if has_defaults:
+        policy_summary = "defaults + custom rules" if len(rules) > 1 else "defaults only"
+
+    # Extract fastfetch data
+    os_info = ff.get("OS", {})
+    os_name = os_info.get("prettyName", "Unknown")
+    kernel_info = ff.get("Kernel", {})
+    kernel_full = f"{kernel_info.get('name', '')} {kernel_info.get('release', '')}"
+
+    # CPU info
+    cpu_info = ff.get("CPU", {})
+    cpu_name = cpu_info.get("cpu", cpu_info.get("name", "Unknown"))
+    cores_info = cpu_info.get("cores", {})
+    cpu_cores = cores_info.get("logical", cores_info) if isinstance(cores_info, dict) else cores_info
+    cpu_freq = cpu_info.get("frequency", {})
+    freq_val = cpu_freq.get("base", 0) or cpu_freq.get("max", 0)
+    cpu_freq_str = f"{freq_val / 1000:.2f} GHz" if freq_val else ""
+
+    # Memory - fastfetch uses "total" and "used" (in bytes)
+    memory_info = ff.get("Memory", {})
+    mem_used = memory_info.get("used", memory_info.get("bytesUsed", 0)) / (1024**3)
+    mem_total = memory_info.get("total", memory_info.get("bytesTotal", 0)) / (1024**3)
+    mem_pct = (mem_used / mem_total * 100) if mem_total else 0
+
+    # Disk is a list of mount points - find root
+    disk_info = ff.get("Disk", [])
+    disk_used, disk_total, disk_pct = 0, 0, 0
+    if isinstance(disk_info, list):
+        for d in disk_info:
+            if d.get("mountpoint") == "/":
+                bytes_info = d.get("bytes", {})
+                disk_used = bytes_info.get("used", 0) / (1024**3)
+                disk_total = bytes_info.get("total", 0) / (1024**3)
+                disk_pct = (disk_used / disk_total * 100) if disk_total else 0
+                break
+
+    uptime_info = ff.get("Uptime", {})
+    uptime_ms = uptime_info.get("uptime", 0)
+    uptime_hrs = uptime_ms // 3600000
+    uptime_mins = (uptime_ms % 3600000) // 60000
+    uptime_str = f"{uptime_hrs}h {uptime_mins}m" if uptime_hrs else f"{uptime_mins}m"
+    packages_info = ff.get("Packages", {})
+    pkg_count = packages_info.get("all", 0)
+    shell_info = ff.get("Shell", {})
+    shell_name = f"{shell_info.get('prettyName', 'Unknown')}"
+
+    # LocalIp (note: lowercase 'p') is a list of interfaces
+    local_ip_info = ff.get("LocalIp", ff.get("LocalIP", []))
+    if isinstance(local_ip_info, list) and local_ip_info:
+        local_ip = local_ip_info[0].get("ipv4", "N/A")
+    else:
+        local_ip = local_ip_info.get("ipv4", "N/A") if isinstance(local_ip_info, dict) else "N/A"
+
+    return f'''<!DOCTYPE html>
+<html>
+<head>
+    <title>{sys_info['hostname']} | System Info</title>
+    <link rel="stylesheet" href="https://unpkg.com/terminal.css@0.7.4/dist/terminal.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {{
+            --global-font-size: 14px;
+            --font-stack: 'JetBrains Mono', monospace;
+            --background-color: #0a0a0a;
+            --font-color: #c8c8c8;
+        }}
+        body {{ background: #0a0a0a; padding: 20px; margin: 0; }}
+        .container {{ max-width: 900px; margin: 0 auto; }}
+        .terminal-window {{
+            background: #1a1a1a;
+            border-radius: 8px;
+            margin: 20px 0;
+            overflow: hidden;
+            border: 1px solid #333;
+        }}
+        .terminal-header {{
+            background: linear-gradient(#3a3a3a, #2a2a2a);
+            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }}
+        .terminal-dot {{ width: 12px; height: 12px; border-radius: 50%; }}
+        .red {{ background: #ff5f56; }}
+        .yellow {{ background: #ffbd2e; }}
+        .green {{ background: #27c93f; }}
+        .terminal-title {{ color: #999; margin-left: 10px; font-size: 13px; }}
+        .terminal-body {{ padding: 20px; background: #0d0d0d; }}
+        .info-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }}
+        .info-section {{ margin-bottom: 20px; }}
+        .section-title {{ color: #c678dd; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 5px; }}
+        .info-row {{ margin: 5px 0; }}
+        .label {{ color: #e5c07b; display: inline-block; min-width: 140px; }}
+        .value {{ color: #98c379; }}
+        .comment {{ color: #5c6370; }}
+        .success {{ color: #27c93f; }}
+        .warning {{ color: #ffbd2e; }}
+        .error {{ color: #ff5f56; }}
+        .highlight {{ color: #61afef; }}
+        .ascii-art {{ color: #c678dd; line-height: 1.2; font-size: 10px; margin-right: 20px; white-space: pre; }}
+        .header-row {{ display: flex; align-items: flex-start; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #333; }}
+        .header-info {{ flex: 1; }}
+        .hostname {{ color: #61afef; font-size: 1.5em; font-weight: bold; }}
+        .tagline {{ color: #5c6370; margin-top: 5px; }}
+        pre {{ margin: 0; }}
+        .progress-bar {{ background: #333; border-radius: 3px; height: 8px; width: 100px; display: inline-block; margin-left: 10px; vertical-align: middle; }}
+        .progress-fill {{ height: 100%; border-radius: 3px; }}
+        .progress-green {{ background: #27c93f; }}
+        .progress-yellow {{ background: #ffbd2e; }}
+        .progress-red {{ background: #ff5f56; }}
+        .fastfetch-section {{ margin-top: 20px; padding-top: 20px; border-top: 1px solid #333; }}
+        .ff-row {{ display: flex; margin: 4px 0; }}
+        .ff-label {{ color: #61afef; min-width: 120px; }}
+        .ff-value {{ color: #c8c8c8; }}
+        .color-blocks {{ margin-top: 10px; }}
+        .color-block {{ display: inline-block; width: 24px; height: 12px; }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="terminal-window">
+            <div class="terminal-header">
+                <div class="terminal-dot red"></div>
+                <div class="terminal-dot yellow"></div>
+                <div class="terminal-dot green"></div>
+                <span class="terminal-title">sprite@{sys_info['hostname']} — system info</span>
+            </div>
+            <div class="terminal-body">
+                <div class="header-row">
+                    <pre class="ascii-art">   _____ ____  ____  ________________
+  / ___// __ \\/ __ \\/  _/_  __/ ____/
+  \\__ \\/ /_/ / /_/ // /  / / / __/
+ ___/ / ____/ _, _// /  / / / /___
+/____/_/   /_/ |_/___/ /_/ /_____/   </pre>
+                    <div class="header-info">
+                        <div class="hostname">{sys_info['hostname']}</div>
+                        <div class="tagline">Sprite VM - Stateful Sandbox</div>
+                        <div style="margin-top: 10px;">
+                            <span class="label">Sprite Version</span>
+                            <span class="value">{sprite_info['version']}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-grid">
+                    <div>
+                        <div class="info-section">
+                            <div class="section-title">Sprite Environment</div>
+                            <div class="info-row"><span class="label">Platform</span><span class="value">Fly.io Sprites</span></div>
+                            <div class="info-row"><span class="label">Version</span><span class="value">{sprite_info['version']}</span></div>
+                            <div class="info-row"><span class="label">User</span><span class="value">{sys_info['user']}</span></div>
+                            <div class="info-row"><span class="label">Working Dir</span><span class="value">{sys_info['cwd']}</span></div>
+                        </div>
+
+                        <div class="info-section">
+                            <div class="section-title">Services</div>
+                            {services_html}
+                        </div>
+
+                        <div class="info-section">
+                            <div class="section-title">Checkpoints</div>
+                            {checkpoints_html}
+                        </div>
+
+                        <div class="info-section">
+                            <div class="section-title">Network Policy</div>
+                            <div class="info-row"><span class="value">{policy_summary}</span></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="info-section">
+                            <div class="section-title">System (fastfetch)</div>
+                            <div class="ff-row"><span class="ff-label">OS</span><span class="ff-value">{os_name}</span></div>
+                            <div class="ff-row"><span class="ff-label">Kernel</span><span class="ff-value">{kernel_full}</span></div>
+                            <div class="ff-row"><span class="ff-label">Uptime</span><span class="ff-value">{uptime_str}</span></div>
+                            <div class="ff-row"><span class="ff-label">Packages</span><span class="ff-value">{pkg_count} (dpkg)</span></div>
+                            <div class="ff-row"><span class="ff-label">Shell</span><span class="ff-value">{shell_name}</span></div>
+                            <div class="ff-row"><span class="ff-label">CPU</span><span class="ff-value">{cpu_name} ({cpu_cores}) @ {cpu_freq_str}</span></div>
+                            <div class="ff-row">
+                                <span class="ff-label">Memory</span>
+                                <span class="ff-value">{mem_used:.2f} GiB / {mem_total:.2f} GiB ({mem_pct:.0f}%)</span>
+                                <div class="progress-bar"><div class="progress-fill {"progress-green" if mem_pct < 60 else "progress-yellow" if mem_pct < 85 else "progress-red"}" style="width: {mem_pct}%"></div></div>
+                            </div>
+                            <div class="ff-row">
+                                <span class="ff-label">Disk (/)</span>
+                                <span class="ff-value">{disk_used:.2f} GiB / {disk_total:.2f} GiB ({disk_pct:.0f}%)</span>
+                                <div class="progress-bar"><div class="progress-fill {"progress-green" if disk_pct < 60 else "progress-yellow" if disk_pct < 85 else "progress-red"}" style="width: {disk_pct}%"></div></div>
+                            </div>
+                            <div class="ff-row"><span class="ff-label">Local IP</span><span class="ff-value">{local_ip}</span></div>
+                        </div>
+
+                        <div class="info-section">
+                            <div class="section-title">Runtime</div>
+                            <div class="info-row"><span class="label">Python</span><span class="value">{sys_info['python_version']}</span></div>
+                            <div class="info-row"><span class="label">Architecture</span><span class="value">{sys_info['architecture']}</span></div>
+                            <div class="info-row"><span class="label">CPUs</span><span class="value">{sys_info['cpu_count']}</span></div>
+                        </div>
+
+                        <div class="color-blocks">
+                            <span class="color-block" style="background: #1a1a1a;"></span>
+                            <span class="color-block" style="background: #ff5f56;"></span>
+                            <span class="color-block" style="background: #ffbd2e;"></span>
+                            <span class="color-block" style="background: #27c93f;"></span>
+                            <span class="color-block" style="background: #61afef;"></span>
+                            <span class="color-block" style="background: #c678dd;"></span>
+                            <span class="color-block" style="background: #56b6c2;"></span>
+                            <span class="color-block" style="background: #c8c8c8;"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #333; color: #5c6370; font-size: 12px; display: flex; justify-content: space-between; align-items: center;">
+                    <span>
+                        <span id="cache-dot" style="color: #27c93f;">●</span>
+                        Data cached <span id="cache-age" style="color: #e5c07b;">0s</span> ago
+                        <span class="refresh-hint">(refreshes in <span id="next-refresh">5:00</span>)</span>
+                    </span>
+                    <span>
+                        <a href="#" onclick="location.reload(); return false;" style="color: #61afef;">Refresh Now</a> |
+                        <a href="/" style="color: #61afef;">Home</a> |
+                        <a href="/info/json" style="color: #61afef;">JSON</a>
+                    </span>
+                </div>
+                <script>
+                    (function() {{
+                        const startTime = Date.now();
+                        const cacheAge = {cache_age:.0f};
+                        const refreshMs = 5 * 60 * 1000;
+
+                        function fmt(s) {{
+                            if (s < 60) return Math.floor(s) + "s";
+                            return Math.floor(s/60) + "m " + Math.floor(s%60) + "s";
+                        }}
+
+                        function tick() {{
+                            const elapsed = (Date.now() - startTime) / 1000;
+                            const age = cacheAge + elapsed;
+                            const left = Math.max(0, (refreshMs/1000) - elapsed);
+
+                            document.getElementById("cache-age").textContent = fmt(age);
+                            document.getElementById("next-refresh").textContent = fmt(left);
+
+                            // Color: green < 60s, yellow < 240s, red >= 240s
+                            const dot = document.getElementById("cache-dot");
+                            dot.style.color = age < 60 ? "#27c93f" : age < 240 ? "#ffbd2e" : "#ff5f56";
+
+                            if (left <= 0) location.reload();
+                        }}
+
+                        setInterval(tick, 1000);
+                        tick();
+                    }})();
+                </script>
+            </div>
+        </div>
+
+        <!-- htop-style process viewer -->
+        <div class="terminal-window">
+            <div class="terminal-header">
+                <div class="terminal-dot red"></div>
+                <div class="terminal-dot yellow"></div>
+                <div class="terminal-dot green"></div>
+                <span class="terminal-title">htop - {sys_info['hostname']}</span>
+            </div>
+            <div class="terminal-body" style="font-size: 12px; line-height: 1.4;">
+                <style>
+                    .htop-header {{ display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 15px; }}
+                    .htop-meters {{ }}
+                    .htop-stats {{ text-align: right; }}
+                    .cpu-row {{ display: flex; align-items: center; margin: 2px 0; }}
+                    .cpu-label {{ color: #61afef; width: 30px; }}
+                    .cpu-bar {{ flex: 1; height: 12px; background: #333; margin: 0 8px; position: relative; overflow: hidden; }}
+                    .cpu-fill {{ height: 100%; transition: width 0.3s; }}
+                    .cpu-fill-low {{ background: linear-gradient(90deg, #27c93f 0%, #27c93f 50%, #98c379 100%); }}
+                    .cpu-fill-med {{ background: linear-gradient(90deg, #27c93f 0%, #ffbd2e 100%); }}
+                    .cpu-fill-high {{ background: linear-gradient(90deg, #ffbd2e 0%, #ff5f56 100%); }}
+                    .cpu-pct {{ color: #888; width: 45px; text-align: right; }}
+                    .mem-row {{ display: flex; align-items: center; margin: 4px 0; }}
+                    .mem-label {{ color: #27c93f; width: 30px; }}
+                    .mem-bar {{ flex: 1; height: 12px; background: #333; margin: 0 8px; }}
+                    .mem-fill {{ height: 100%; background: #27c93f; }}
+                    .mem-text {{ color: #888; width: 120px; text-align: right; font-size: 11px; }}
+                    .htop-info {{ color: #888; font-size: 11px; }}
+                    .htop-info span {{ margin-right: 15px; }}
+                    .htop-info .label {{ color: #e5c07b; }}
+                    .htop-divider {{ border-top: 1px solid #333; margin: 10px 0; }}
+                    .proc-header {{ display: grid; grid-template-columns: 60px 70px 55px 55px 70px 1fr; color: #000; background: #27c93f; padding: 2px 5px; font-weight: bold; }}
+                    .proc-row {{ display: grid; grid-template-columns: 60px 70px 55px 55px 70px 1fr; padding: 1px 5px; }}
+                    .proc-row:nth-child(even) {{ background: rgba(255,255,255,0.02); }}
+                    .proc-row:hover {{ background: rgba(97, 175, 239, 0.1); }}
+                    .proc-pid {{ color: #61afef; }}
+                    .proc-user {{ color: #c678dd; }}
+                    .proc-cpu {{ color: #27c93f; text-align: right; padding-right: 10px; }}
+                    .proc-mem {{ color: #ffbd2e; text-align: right; padding-right: 10px; }}
+                    .proc-time {{ color: #888; }}
+                    .proc-cmd {{ color: #c8c8c8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }}
+                </style>
+
+                <div class="htop-header">
+                    <div class="htop-meters">
+                        {''.join(f'<div class="cpu-row"><span class="cpu-label">{c["core"]}</span><div class="cpu-bar"><div class="cpu-fill {"cpu-fill-low" if c["usage"] < 50 else "cpu-fill-med" if c["usage"] < 80 else "cpu-fill-high"}" style="width: {c["usage"]:.0f}%"></div></div><span class="cpu-pct">{c["usage"]:.1f}%</span></div>' for c in htop["cpu_bars"])}
+                        <div class="mem-row">
+                            <span class="mem-label">Mem</span>
+                            <div class="mem-bar"><div class="mem-fill" style="width: {htop["memory"]["pct"]:.0f}%; background: #27c93f;"></div></div>
+                            <span class="mem-text">{htop["memory"]["used"]:.0f}M/{htop["memory"]["total"]:.0f}M</span>
+                        </div>
+                        <div class="mem-row">
+                            <span class="mem-label" style="color: #ffbd2e;">Swp</span>
+                            <div class="mem-bar"><div class="mem-fill" style="width: {htop["swap"]["pct"]:.0f}%; background: #ffbd2e;"></div></div>
+                            <span class="mem-text">{htop["swap"]["used"]:.0f}M/{htop["swap"]["total"]:.0f}M</span>
+                        </div>
+                    </div>
+                    <div class="htop-stats">
+                        <div class="htop-info">
+                            <span><span class="label">Tasks:</span> {htop["tasks"]["total"]}</span>
+                            <span><span class="label">running:</span> {htop["tasks"]["running"]}</span>
+                        </div>
+                        <div class="htop-info">
+                            <span><span class="label">Load avg:</span> {htop["load_avg"][0]:.2f} {htop["load_avg"][1]:.2f} {htop["load_avg"][2]:.2f}</span>
+                        </div>
+                        <div class="htop-info">
+                            <span><span class="label">Uptime:</span> {htop["uptime"]}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="htop-divider"></div>
+
+                <div class="proc-header">
+                    <span>PID</span>
+                    <span>USER</span>
+                    <span style="text-align: right; padding-right: 10px;">CPU%</span>
+                    <span style="text-align: right; padding-right: 10px;">MEM%</span>
+                    <span>TIME+</span>
+                    <span>Command</span>
+                </div>
+                {''.join(f'<div class="proc-row"><span class="proc-pid">{p["pid"]}</span><span class="proc-user">{p["user"]}</span><span class="proc-cpu">{p["cpu"]}</span><span class="proc-mem">{p["mem"]}</span><span class="proc-time">{p["time"]}</span><span class="proc-cmd">{p["cmd"]}</span></div>' for p in htop["processes"])}
+
+                <div class="htop-divider"></div>
+                <div style="color: #5c6370; font-size: 11px;">
+                    F1Help F2Setup F3Search F4Filter F5Tree F6SortBy F7Nice- F8Nice+ F9Kill F10Quit
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>'''
+
+
+@app.get("/info/json")
+async def info_json():
+    """Return raw system and sprite info as JSON."""
+    sprite_info, sprite_ttl = get_sprite_info()
+    ff, ff_ttl = get_fastfetch_info()
+    htop, htop_ttl = get_htop_data()
+    return {
+        "system": get_system_info(),
+        "sprite": sprite_info,
+        "fastfetch": ff,
+        "htop": htop,
+        "cache": {
+            "ttl_seconds": 300,
+            "sprite_ttl_remaining": round(sprite_ttl, 1),
+            "fastfetch_ttl_remaining": round(ff_ttl, 1),
+            "htop_ttl_remaining": round(htop_ttl, 1),
+        }
+    }
+
+
+@app.get("/cron", response_class=HTMLResponse)
+async def cron_page():
+    """Display cron jobs status and history."""
+    # Update next run times
+    for job_id in cron_stats:
+        job = scheduler.get_job(job_id)
+        if job and job.next_run_time:
+            cron_stats[job_id]["next_run"] = job.next_run_time.isoformat()
+
+    # Build job rows
+    jobs_html = ""
+    for job_id, stats in cron_stats.items():
+        job = scheduler.get_job(job_id)
+        job_name = job.name if job else job_id
+        trigger = str(job.trigger) if job else "unknown"
+        last_run = stats["last_run"][:19].replace("T", " ") if stats["last_run"] else "Never"
+        next_run = stats["next_run"][:19].replace("T", " ") if stats["next_run"] else "Unknown"
+        runs = stats["runs"]
+
+        jobs_html += f'''
+        <div class="job-card">
+            <div class="job-header">
+                <span class="job-name">{job_name}</span>
+                <span class="job-id">({job_id})</span>
+            </div>
+            <div class="job-details">
+                <div class="job-row"><span class="label">Schedule:</span><span class="value">{trigger}</span></div>
+                <div class="job-row"><span class="label">Total runs:</span><span class="value">{runs}</span></div>
+                <div class="job-row"><span class="label">Last run:</span><span class="value">{last_run}</span></div>
+                <div class="job-row"><span class="label">Next run:</span><span class="value highlight">{next_run}</span></div>
+            </div>
+        </div>'''
+
+    # Build history log
+    history_html = ""
+    all_history = []
+    for job_id, hist in cron_history.items():
+        for entry in hist:
+            all_history.append(entry)
+    all_history.sort(key=lambda x: x["time"], reverse=True)
+
+    for entry in all_history[:20]:  # Show last 20
+        history_html += f'<div class="log-line">{entry["message"]}</div>'
+
+    if not history_html:
+        history_html = '<div class="log-line comment">No runs yet - waiting for first scheduled execution...</div>'
+
+    return f'''<!DOCTYPE html>
+<html>
+<head>
+    <title>Cron Jobs | Sprite</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {{ box-sizing: border-box; }}
+        body {{
+            background: #0a0a0a;
+            color: #c8c8c8;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            padding: 20px;
+            margin: 0;
+        }}
+        .container {{ max-width: 900px; margin: 0 auto; }}
+        .terminal-window {{
+            background: #1a1a1a;
+            border-radius: 8px;
+            margin: 20px 0;
+            overflow: hidden;
+            border: 1px solid #333;
+        }}
+        .terminal-header {{
+            background: linear-gradient(#3a3a3a, #2a2a2a);
+            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }}
+        .terminal-dot {{ width: 12px; height: 12px; border-radius: 50%; }}
+        .red {{ background: #ff5f56; }}
+        .yellow {{ background: #ffbd2e; }}
+        .green {{ background: #27c93f; }}
+        .terminal-title {{ color: #999; margin-left: 10px; font-size: 13px; }}
+        .terminal-body {{ padding: 20px; background: #0d0d0d; }}
+        .ascii-art {{ color: #c678dd; line-height: 1.15; font-size: 9px; white-space: pre; margin-bottom: 20px; }}
+        .section-title {{ color: #c678dd; font-weight: bold; margin: 20px 0 10px; border-bottom: 1px solid #333; padding-bottom: 5px; }}
+        .job-card {{
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 10px 0;
+        }}
+        .job-header {{ display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }}
+        .job-name {{ color: #61afef; font-weight: bold; font-size: 16px; }}
+        .job-id {{ color: #5c6370; font-size: 12px; }}
+        .job-details {{ }}
+        .job-row {{ margin: 5px 0; }}
+        .label {{ color: #e5c07b; display: inline-block; min-width: 100px; }}
+        .value {{ color: #98c379; }}
+        .highlight {{ color: #61afef; }}
+        .comment {{ color: #5c6370; font-style: italic; }}
+        .log-container {{
+            background: #0d0d0d;
+            border: 1px solid #333;
+            border-radius: 6px;
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-size: 12px;
+        }}
+        .log-line {{
+            color: #27c93f;
+            margin: 3px 0;
+            font-family: monospace;
+        }}
+        .footer {{
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #333;
+            color: #5c6370;
+            font-size: 12px;
+        }}
+        .footer a {{ color: #61afef; }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="terminal-window">
+            <div class="terminal-header">
+                <div class="terminal-dot red"></div>
+                <div class="terminal-dot yellow"></div>
+                <div class="terminal-dot green"></div>
+                <span class="terminal-title">crontab -l</span>
+            </div>
+            <div class="terminal-body">
+                <pre class="ascii-art">
+   ██████╗██████╗  ██████╗ ███╗   ██╗
+  ██╔════╝██╔══██╗██╔═══██╗████╗  ██║
+  ██║     ██████╔╝██║   ██║██╔██╗ ██║
+  ██║     ██╔══██╗██║   ██║██║╚██╗██║
+  ╚██████╗██║  ██║╚██████╔╝██║ ╚████║
+   ╚═════╝╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═══╝
+  ┌─────────────────────────────────────┐
+  │  Sprite Scheduled Tasks (APScheduler) │
+  └─────────────────────────────────────┘</pre>
+
+                <div class="section-title">Scheduled Jobs</div>
+                {jobs_html if jobs_html else '<div class="comment">No jobs configured</div>'}
+
+                <div class="section-title">Run History</div>
+                <div class="log-container">
+                    {history_html}
+                </div>
+
+                <div class="footer">
+                    Page generated at {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} |
+                    <a href="/info">System Info</a> |
+                    <a href="/">Home</a> |
+                    <a href="#" onclick="location.reload(); return false;">Refresh</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>'''
 
 
 @app.get("/health")
