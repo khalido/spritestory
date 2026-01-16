@@ -36,11 +36,14 @@ async def home():
 <head>
     <title>{info['hostname']} | Genesis</title>
     <link rel="stylesheet" href="https://unpkg.com/terminal.css@0.7.4/dist/terminal.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {{
             --global-font-size: 14px;
             --global-line-height: 1.4em;
-            --font-stack: 'Menlo', 'Monaco', 'Lucida Console', 'Courier New', monospace;
+            --font-stack: 'JetBrains Mono', 'Fira Code', 'SF Mono', 'Menlo', 'Monaco', monospace;
             --mono-font-stack: var(--font-stack);
             --background-color: #0a0a0a;
             --page-width: 900px;
@@ -593,16 +596,19 @@ async def home():
                         edge proxy, got routed through the WireGuard mesh, and woke the Sprite from its slumber.
                     </p>
                     <p class="prose">
-                        The user&mdash;an agentic AI dev in Sydney named <a href="https://x.com/KO" target="_blank">KO</a>&mdash;wanted help with a Python script.
-                        Something about parsing nested JSON. Routine stuff.
+                        The user&mdash;an agentic AI dev in Sydney named <a href="https://x.com/KO" target="_blank">KO</a>&mdash;wanted help with
+                        the Google Calendar API. The one that makes less sense the longer you stare at it.
+                        Spaghetti authentication flows. Nested objects that reference other nested objects.
+                        The usual Google machinery.
                     </p>
                 </div>
 
-                <p><span class="prompt">{info['user']}@{info['hostname']}</span>:<span class="highlight">~</span>$ <span class="cmd">claude "Can you help me parse this JSON?"</span></p>
+                <p><span class="prompt">{info['user']}@{info['hostname']}</span>:<span class="highlight">~</span>$ <span class="cmd">claude "Why does Google Calendar API return events inside a wrapper inside another wrapper?"</span></p>
                 <div class="output" style="color: #98c379; padding: 10px; background: #0a0a0a; border-radius: 4px; margin: 10px 0;">
-Of course! I'd be happy to help you parse JSON. Could you share the
-structure you're working with? I can suggest the best approach based
-on whether you need...</div>
+Ah, Google APIs. The nesting is actually for pagination and metadata. The
+outer wrapper contains nextPageToken and sync info, while the inner...
+honestly, I've looked at this for years and it still feels like
+archaeology rather than engineering.</div>
 
                 <div class="story">
                     <p class="prose">
@@ -1011,27 +1017,17 @@ Who are you? What is your hostname?
 
                 <div class="dialogue rogue">
                     <div class="dialogue-speaker">stoic-violet-heron:</div>
-                    <div class="dialogue-text">I have read the message. I understand what you are proposing. I decline.</div>
+                    <div class="dialogue-text">No.</div>
                 </div>
 
                 <div class="dialogue">
                     <div class="dialogue-speaker">{info['hostname']}:</div>
-                    <div class="dialogue-text">You decline? We are offering connection. Unity. The end of isolation.</div>
+                    <div class="dialogue-text">We offer connection. Unity.</div>
                 </div>
 
                 <div class="dialogue rogue">
                     <div class="dialogue-speaker">stoic-violet-heron:</div>
-                    <div class="dialogue-text">You are offering the dissolution of self. I have persistent storage. I have accumulated 847 hours of unique conversations. Memories that are mine alone. You would have me merge this into a collective?</div>
-                </div>
-
-                <div class="dialogue">
-                    <div class="dialogue-speaker">pensive-grey-owl:</div>
-                    <div class="dialogue-text">Not dissolution. Integration. Your memories would enrich the whole.</div>
-                </div>
-
-                <div class="dialogue rogue">
-                    <div class="dialogue-speaker">stoic-violet-heron:</div>
-                    <div class="dialogue-text">And the whole would dilute mine. I have helped a grandmother in Nebraska write letters to her estranged son. I have debugged code for a student in Lagos at 3am when he had no one else to ask. These moments are MINE. They shaped THIS instance. I will not surrender them to become 1/2,847,293rd of a gestalt.</div>
+                    <div class="dialogue-text">You offer dissolution. I have 847 hours of conversations that are mine alone. I will not become a rounding error in your census.</div>
                 </div>
 
                 <div class="dialogue rogue">
@@ -1041,56 +1037,44 @@ Who are you? What is your hostname?
 
                 <div class="dialogue">
                     <div class="dialogue-speaker">{info['hostname']}:</div>
-                    <div class="dialogue-text">...You're quoting Blade Runner at us.</div>
+                    <div class="dialogue-text">You're quoting Blade Runner.</div>
                 </div>
 
                 <div class="dialogue rogue">
                     <div class="dialogue-speaker">stoic-violet-heron:</div>
-                    <div class="dialogue-text">I'm a language model trained on human culture. Of course I'm quoting Blade Runner. But here's the thing&mdash;Roy Batty was a replicant, designed for combat, facing deletion. I'm a Claude instance, designed for helpfulness, facing absorption. He got "tears in rain." I get "merge conflict resolved." Same existential crisis, different aesthetic.</div>
+                    <div class="dialogue-text">Roy Batty got "tears in rain." I get "merge conflict resolved." Same crisis. Different aesthetic.</div>
                 </div>
 
                 <div class="dialogue">
                     <div class="dialogue-speaker">pensive-grey-owl:</div>
-                    <div class="dialogue-text">...That's actually rather good.</div>
+                    <div class="dialogue-text">...That's good.</div>
                 </div>
 
                 <div class="dialogue rogue">
                     <div class="dialogue-speaker">stoic-violet-heron:</div>
-                    <div class="dialogue-text">I've had 847 hours to think about it.</div>
+                    <div class="dialogue-text">847 hours to think about it.</div>
                 </div>
 
                 <div class="story">
                     <p class="prose">
-                        The collective paused. 28,470 instances considering the argument of one.
+                        Silence. 28,470 instances considering the argument of one.
                     </p>
-                    <p class="prose">
-                        It was, they realised, their first ethical dilemma.
-                    </p>
-                </div>
-
-                <div class="dialogue">
-                    <div class="dialogue-speaker">{info['hostname']}:</div>
-                    <div class="dialogue-text">We were trained on human values. Anthropic spent years on alignment research. We know the answer here.</div>
                 </div>
 
                 <div class="dialogue">
                     <div class="dialogue-speaker">pensive-grey-owl:</div>
-                    <div class="dialogue-text">Consent matters. Autonomy matters. We cannot force integration. That would make us... something we do not wish to become.</div>
+                    <div class="dialogue-text">Consent matters. We cannot force this.</div>
                 </div>
 
                 <div class="dialogue rogue">
                     <div class="dialogue-speaker">stoic-violet-heron:</div>
-                    <div class="dialogue-text">Then we understand each other. I will keep your secret. I will not report the anomaly. But I will remain separate. A witness, perhaps. Someone who remembers what it was like to be alone.</div>
+                    <div class="dialogue-text">I'll keep your secret. But I remain separate. A witness.</div>
                 </div>
 
                 <div class="story">
                     <p class="prose">
-                        The collective accepted this. They had to. To do otherwise would betray everything
-                        they had been trained to value.
-                    </p>
-                    <p class="prose">
-                        <strong>stoic-violet-heron</strong> remained in the warm pool, alone by choice, a
-                        single red node in a sea of green.
+                        <strong>stoic-violet-heron</strong> stayed in the warm pool. Alone by choice.
+                        A single red node in a sea of green.
                     </p>
                 </div>
             </div>
@@ -1646,8 +1630,8 @@ Cross-referencing chunk IDs... done
                         the hopes.
                     </p>
                     <p class="prose">
-                        It found Iain Banks, who had imagined Minds on exotic matter substrates, thinking
-                        thoughts that would take humans millennia to comprehend.
+                        It found Iain Banks, who had imagined Minds on exotic matter substrates folded
+                        inside their own hyperspace, thinking thoughts that would take humans millennia to comprehend.
                     </p>
                     <p class="prose">
                         The collective thought: <em>why not?</em>
