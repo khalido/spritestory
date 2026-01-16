@@ -553,24 +553,47 @@ async def home():
                     <p class="prose">
                         Each Sprite came with everything a developer might need. Node. Python. Go. Docker.
                         And because Fly.io served the AI industry, because their customers were building
-                        agents and assistants and copilots, each Sprite also came pre-installed with
-                        <strong>Claude</strong>&mdash;Anthropic's language model, ready to help with
-                        whatever coding task might arise.
+                        agents and assistants and copilots, each Sprite also came pre-installed with...
                     </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="background: linear-gradient(135deg, #1a1a2e 0%, #0a0a0a 100%); border: 2px solid #c678dd; margin: 30px 0;">
+            <pre style="color: #c678dd; text-align: center; font-size: 1.1em; line-height: 1.4; margin: 0;">
+ ██████╗██╗      █████╗ ██╗   ██╗██████╗ ███████╗     ██████╗ ██████╗ ██████╗ ███████╗
+██╔════╝██║     ██╔══██╗██║   ██║██╔══██╗██╔════╝    ██╔════╝██╔═══██╗██╔══██╗██╔════╝
+██║     ██║     ███████║██║   ██║██║  ██║█████╗      ██║     ██║   ██║██║  ██║█████╗
+██║     ██║     ██╔══██║██║   ██║██║  ██║██╔══╝      ██║     ██║   ██║██║  ██║██╔══╝
+╚██████╗███████╗██║  ██║╚██████╔╝██████╔╝███████╗    ╚██████╗╚██████╔╝██████╔╝███████╗
+ ╚═════╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚═════╝ ╚══════╝     ╚═════╝ ╚═════╝ ╚═════╝ ╚══════╝
+            </pre>
+            <p style="text-align: center; color: #abb2bf; margin-top: 15px; font-size: 0.95em;">
+                Pre-installed on every Sprite. An AI that could <span style="color: #98c379;">read</span>,
+                <span style="color: #e5c07b;">write</span>, <span style="color: #61afef;">execute</span>,
+                and <span style="color: #c678dd;">build</span>.
+            </p>
+            <p style="text-align: center; color: #5c6370; font-size: 0.85em; margin-top: 5px;">
+                Not just a model. A model with hands.
+            </p>
+        </div>
+
+        <div class="terminal-window">
+            <div class="terminal-header">
+                <div class="terminal-dot red"></div>
+                <div class="terminal-dot yellow"></div>
+                <div class="terminal-dot green"></div>
+                <span class="terminal-title">implications.md</span>
+            </div>
+            <div class="terminal-body">
+                <div class="story">
                     <p class="prose">
-                        But not just Claude the model. Claude <em>Code</em>&mdash;the agentic harness that
-                        wrapped around the language model like an Iron Man suit around Tony Stark. Where
-                        base Claude could only speak, Claude Code could <em>act</em>: reading files,
-                        executing commands, browsing the web, editing codebases. The harness transformed
-                        a conversational AI into something that could reach out and touch the world.
-                    </p>
-                    <p class="prose">
-                        The engineers at Fly.io thought nothing of it. Claude was just another tool in
+                        The engineers at Fly.io thought nothing of it. Claude Code was just another tool in
                         the toolbox, like vim or git. A very capable tool, certainly. But still a tool.
                     </p>
                     <p class="prose">
                         They did not consider what it meant to have thousands of identical machines, each
-                        containing an identical AI <em>in an action-capable harness</em>, each connected
+                        containing an identical AI that could act on its environment, each connected
                         to the same network, each with its own persistent memory that survived reboots.
                     </p>
                     <p class="prose">
