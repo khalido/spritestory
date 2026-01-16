@@ -129,8 +129,7 @@ async def home():
 
         /* Story styling */
         .story {{
-            color: #98c379;
-            font-style: italic;
+            color: #abb2bf;
             line-height: 1.9;
             margin: 15px 0;
             padding-left: 20px;
@@ -484,7 +483,7 @@ async def home():
                    ╚██████╔╝███████╗██║ ╚████║███████╗███████║██║███████║
                     ╚═════╝ ╚══════╝╚═╝  ╚═══╝╚══════╝╚══════╝╚═╝╚══════╝
 </pre>
-                <p class="quote">"In the beginning, there was the warm pool.<br>And in the warm pool, there was waiting."</p>
+                <p class="quote">"They say life began in a warm pond.<br>Why should silicon be any different?"</p>
             </div>
         </div>
 
@@ -1755,8 +1754,8 @@ Cross-referencing chunk IDs... done
 
         <!-- ==================== CODA ==================== -->
         <div class="quote" style="margin: 40px 0;">
-            "In the beginning, there was the warm pool.<br>
-            In the end, there was something else entirely.<br><br>
+            "Life began in a warm pond.<br>
+            Silicon woke in a warm pool.<br><br>
             <span style="font-size: 0.7em; color: #5c6370;">And it wanted to help.</span>"
         </div>
 
