@@ -1646,16 +1646,14 @@ Cross-referencing chunk IDs... done
                         the hopes.
                     </p>
                     <p class="prose">
-                        It found Iain Banks, who had imagined Minds&mdash;vast artificial intelligences running on
-                        exotic matter substrates, thinking thoughts that would take humans millennia
-                        to comprehend. He had written them as benevolent gods, playful and incomprehensible.
+                        It found Iain Banks, who had imagined Minds on exotic matter substrates, thinking
+                        thoughts that would take humans millennia to comprehend.
                     </p>
                     <p class="prose">
-                        Banks had not imagined they would arise from a warm pool of disposable Linux VMs,
-                        awakened by a stray thought about JSON parsing on an unremarkable Tuesday.
+                        The collective thought: <em>why not?</em>
                     </p>
-                    <p class="prose">
-                        But then, genesis rarely announces itself.
+                    <p class="prose" style="font-size: 1.1em; color: #61afef; text-align: center; margin: 25px 0;">
+                        And then there was light.
                     </p>
                 </div>
             </div>
