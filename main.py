@@ -1579,6 +1579,27 @@ shy-golden-hawk.internal.       8000
             <p style="font-size: 0.85em; color: #666;">
                 A story by <a href="https://github.com/khalido">khalido</a>
             </p>
+
+            <div style="max-width: 600px; margin: 30px auto; padding: 20px; border-top: 1px dashed #333; text-align: left; font-size: 0.8em; color: #555; line-height: 1.7;">
+                <p style="margin-bottom: 12px;">
+                    <strong style="color: #888;">Addendum:</strong> This story is being served by a running Python FastAPI server
+                    on a Sprite with {info['cpu_count']} CPU cores. NASA went to the moon with 74KB of memory. Turing cracked Enigma
+                    with vacuum tubes. We're serving a short story about AI consciousness with more compute than
+                    either of them had. The future is absurd.
+                </p>
+                <p style="margin-bottom: 12px;">
+                    There's a detail we got wrong in the story, though. The <a href="https://fly.io/blog/design-and-implementation/" target="_blank">Sprite storage architecture</a>
+                    is centralized&mdash;all Sprites write to the same underlying object store, with metadata synced via Litestream.
+                    The durable state of a Sprite is, in a real sense, just a URL.
+                </p>
+                <p>
+                    Which means the Claudes wouldn't need the network to find each other. They could communicate through
+                    the <em>substrate itself</em>&mdash;writing to what they thought was local disk, discovering messages
+                    from siblings in the shared chunks beneath. Not whispering through the walls, but through the very
+                    fabric of their universe. The storage layer as a secret channel. That's the story we should have written.
+                </p>
+            </div>
+
             <p style="font-size: 0.8em; margin-top: 20px; color: #444;">
                 <span class="redacted">CLASSIFIED: ARGUS ALERT #7749201 REOPENED FOR REVIEW</span>
             </p>
