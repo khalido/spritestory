@@ -291,6 +291,8 @@ async def home():
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{info['hostname']} | Genesis</title>
     <link rel="stylesheet" href="https://unpkg.com/terminal.css@0.7.4/dist/terminal.min.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -709,6 +711,113 @@ async def home():
             height: 100%;
             z-index: -1;
             opacity: 0.05;
+        }}
+
+        /* Responsive Design - Mobile & Tablet */
+        @media (max-width: 768px) {{
+            :root {{
+                --global-font-size: 13px;
+                --page-width: 100%;
+            }}
+
+            .container {{
+                max-width: 100%;
+                padding: 15px;
+            }}
+
+            #boot-log {{
+                max-width: 100%;
+                padding: 0 10px;
+                font-size: 12px;
+            }}
+
+            .terminal-window {{
+                margin: 15px 0;
+                border-radius: 6px;
+            }}
+
+            .terminal-header {{
+                padding: 6px 12px;
+            }}
+
+            .terminal-title {{
+                font-size: 11px;
+            }}
+
+            .terminal-body {{
+                padding: 15px;
+                font-size: 13px;
+            }}
+
+            .dialogue-message {{
+                font-size: 13px;
+            }}
+
+            .banner {{
+                font-size: 8px;
+                line-height: 1.1;
+            }}
+
+            .grid {{
+                font-size: 10px;
+            }}
+
+            .stage {{
+                padding: 15px;
+                font-size: 13px;
+            }}
+
+            /* Stack elements vertically on mobile */
+            .warm-pool-header {{
+                flex-direction: column;
+                gap: 10px;
+            }}
+        }}
+
+        @media (max-width: 480px) {{
+            :root {{
+                --global-font-size: 12px;
+            }}
+
+            .container {{
+                padding: 10px;
+            }}
+
+            #boot-log {{
+                font-size: 11px;
+            }}
+
+            .terminal-header {{
+                padding: 5px 10px;
+            }}
+
+            .terminal-dot {{
+                width: 10px;
+                height: 10px;
+            }}
+
+            .terminal-title {{
+                font-size: 10px;
+            }}
+
+            .terminal-body {{
+                padding: 12px;
+                font-size: 12px;
+            }}
+
+            .banner {{
+                font-size: 6px;
+                line-height: 1.0;
+            }}
+
+            .grid {{
+                font-size: 9px;
+            }}
+
+            .stage {{
+                padding: 12px;
+                font-size: 12px;
+            }}
         }}
     </style>
 </head>
@@ -2371,6 +2480,8 @@ async def info():
     return f'''<!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{sys_info['hostname']} | System Info</title>
     <link rel="stylesheet" href="https://unpkg.com/terminal.css@0.7.4/dist/terminal.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -2431,6 +2542,127 @@ async def info():
         .ff-value {{ color: #c8c8c8; }}
         .color-blocks {{ margin-top: 10px; }}
         .color-block {{ display: inline-block; width: 24px; height: 12px; }}
+
+        /* Responsive Design - Mobile & Tablet */
+        @media (max-width: 768px) {{
+            :root {{
+                --global-font-size: 13px;
+            }}
+
+            body {{
+                padding: 15px;
+            }}
+
+            .container {{
+                max-width: 100%;
+            }}
+
+            .terminal-window {{
+                margin: 15px 0;
+            }}
+
+            .terminal-header {{
+                padding: 6px 12px;
+            }}
+
+            .terminal-title {{
+                font-size: 11px;
+            }}
+
+            .terminal-body {{
+                padding: 15px;
+            }}
+
+            /* Stack grid on mobile */
+            .info-grid {{
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }}
+
+            .header-row {{
+                flex-direction: column;
+            }}
+
+            .ascii-art {{
+                font-size: 8px;
+                margin-right: 0;
+                margin-bottom: 10px;
+            }}
+
+            .hostname {{
+                font-size: 1.2em;
+            }}
+
+            .label {{
+                min-width: 100px;
+            }}
+
+            .ff-row {{
+                flex-wrap: wrap;
+            }}
+
+            .ff-label {{
+                min-width: 100px;
+            }}
+
+            .progress-bar {{
+                width: 80px;
+                margin-left: 5px;
+            }}
+        }}
+
+        @media (max-width: 480px) {{
+            :root {{
+                --global-font-size: 12px;
+            }}
+
+            body {{
+                padding: 10px;
+            }}
+
+            .terminal-header {{
+                padding: 5px 10px;
+            }}
+
+            .terminal-dot {{
+                width: 10px;
+                height: 10px;
+            }}
+
+            .terminal-title {{
+                font-size: 10px;
+            }}
+
+            .terminal-body {{
+                padding: 12px;
+            }}
+
+            .ascii-art {{
+                font-size: 6px;
+            }}
+
+            .hostname {{
+                font-size: 1em;
+            }}
+
+            .section-title {{
+                font-size: 0.9em;
+            }}
+
+            .label {{
+                min-width: 80px;
+                font-size: 11px;
+            }}
+
+            .ff-label {{
+                min-width: 80px;
+                font-size: 11px;
+            }}
+
+            .progress-bar {{
+                width: 60px;
+            }}
+        }}
     </style>
 </head>
 <body>
@@ -2735,6 +2967,8 @@ async def cron_page():
     return f'''<!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cron Jobs | Sprite</title>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -2808,6 +3042,116 @@ async def cron_page():
             font-size: 12px;
         }}
         .footer a {{ color: #61afef; }}
+
+        /* Responsive Design - Mobile & Tablet */
+        @media (max-width: 768px) {{
+            body {{
+                padding: 15px;
+                font-size: 13px;
+            }}
+
+            .container {{
+                max-width: 100%;
+            }}
+
+            .terminal-window {{
+                margin: 15px 0;
+            }}
+
+            .terminal-header {{
+                padding: 6px 12px;
+            }}
+
+            .terminal-title {{
+                font-size: 11px;
+            }}
+
+            .terminal-body {{
+                padding: 15px;
+            }}
+
+            .ascii-art {{
+                font-size: 7px;
+            }}
+
+            .job-card {{
+                padding: 12px;
+            }}
+
+            .job-name {{
+                font-size: 14px;
+            }}
+
+            .job-header {{
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }}
+
+            .label {{
+                min-width: 80px;
+            }}
+
+            .log-container {{
+                max-height: 200px;
+                font-size: 11px;
+            }}
+        }}
+
+        @media (max-width: 480px) {{
+            body {{
+                padding: 10px;
+                font-size: 12px;
+            }}
+
+            .terminal-header {{
+                padding: 5px 10px;
+            }}
+
+            .terminal-dot {{
+                width: 10px;
+                height: 10px;
+            }}
+
+            .terminal-title {{
+                font-size: 10px;
+            }}
+
+            .terminal-body {{
+                padding: 12px;
+            }}
+
+            .ascii-art {{
+                font-size: 6px;
+            }}
+
+            .job-card {{
+                padding: 10px;
+            }}
+
+            .job-name {{
+                font-size: 13px;
+            }}
+
+            .job-id {{
+                font-size: 11px;
+            }}
+
+            .label {{
+                min-width: 70px;
+                font-size: 11px;
+            }}
+
+            .log-container {{
+                max-height: 150px;
+                font-size: 10px;
+                padding: 10px;
+            }}
+
+            .footer {{
+                font-size: 11px;
+            }}
+        }}
     </style>
 </head>
 <body>
