@@ -348,7 +348,7 @@ async def home():
         }}
         #boot-log {{
             font-family: monospace;
-            font-size: 13px;
+            font-size: 18px;
             color: #27c93f;
             max-width: 700px;
             line-height: 1.6;
@@ -370,20 +370,41 @@ async def home():
         }}
 
         .terminal-header {{
-            background: linear-gradient(#3a3a3a, #2a2a2a);
-            padding: 8px 15px;
+            background: #1a1a1a;
+            padding: 6px 12px;
             display: flex;
             align-items: center;
             gap: 8px;
-            border-bottom: 1px solid #222;
+            border-bottom: 1px solid #333;
+            font-family: monospace;
         }}
 
-        .terminal-dot {{ width: 12px; height: 12px; border-radius: 50%; }}
-        .red {{ background: #ff5f56; }}
-        .yellow {{ background: #ffbd2e; }}
-        .green {{ background: #27c93f; }}
+        .terminal-buttons {{
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }}
+        .terminal-btn {{
+            width: 8px;
+            height: 8px;
+            border-radius: 2px;
+            background: #444;
+        }}
+        .terminal-btn:hover {{ background: #666; }}
 
-        .terminal-title {{ color: #999; margin-left: 10px; font-size: 13px; }}
+        .terminal-title {{
+            color: #888;
+            font-size: 14px;
+            flex: 1;
+        }}
+        .terminal-title::before {{
+            content: "user@sprite:";
+            color: #27c93f;
+        }}
+        .terminal-title::after {{
+            content: " $";
+            color: #888;
+        }}
         .terminal-body {{ padding: 20px; background: #0d0d0d; }}
 
         /* Story styling */
@@ -408,7 +429,7 @@ async def home():
         /* Command styling */
         .prompt {{ color: #27c93f; }}
         .cmd {{ color: #fff; }}
-        .output {{ color: #888; white-space: pre-wrap; font-size: 13px; }}
+        .output {{ color: #888; white-space: pre-wrap; font-size: 15px; }}
         .highlight {{ color: #61afef; }}
         .label {{ color: #e5c07b; display: inline-block; min-width: 160px; }}
         .value {{ color: #98c379; }}
@@ -419,6 +440,81 @@ async def home():
 
         .ascii-art {{ color: #c678dd; line-height: 1.2; font-size: 11px; }}
         .ascii-large {{ font-size: 10px; line-height: 1.1; }}
+
+        /* Game of Life Grid */
+        .life-container {{
+            background: #0d0d0d;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }}
+        .life-grid {{
+            display: grid;
+            grid-template-columns: repeat(40, 1fr);
+            gap: 2px;
+            font-family: monospace;
+            line-height: 1;
+            max-width: 100%;
+        }}
+        .life-cell {{
+            aspect-ratio: 1;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #222;
+            transition: color 0.15s ease, background 0.15s ease;
+            border-radius: 2px;
+        }}
+        .life-cell.alive {{
+            color: #61afef;
+            background: rgba(97, 175, 239, 0.15);
+        }}
+        .life-cell.word {{
+            color: #27c93f;
+            background: rgba(39, 201, 63, 0.3);
+            text-shadow: 0 0 6px #27c93f;
+        }}
+        .life-cell.word {{
+            animation: word-appear 0.2s ease-out;
+        }}
+        @keyframes word-appear {{
+            0% {{ opacity: 0; transform: scale(0.8); color: #ff5f56; }}
+            50% {{ opacity: 1; transform: scale(1.1); color: #ffbd2e; }}
+            100% {{ opacity: 1; transform: scale(1); color: #27c93f; }}
+        }}
+        .life-container.glitch {{
+            animation: container-glitch 0.4s ease-out;
+        }}
+        @keyframes container-glitch {{
+            0% {{ transform: translate(0) skewX(0); filter: none; }}
+            10% {{ transform: translate(-3px, 1px) skewX(-2deg); filter: hue-rotate(90deg); }}
+            20% {{ transform: translate(2px, -1px) skewX(1deg); }}
+            30% {{ transform: translate(-1px, 2px); filter: hue-rotate(-60deg) brightness(1.2); }}
+            40% {{ transform: translate(3px, 0) skewX(2deg); }}
+            50% {{ transform: translate(-2px, -1px) skewX(-1deg); filter: hue-rotate(45deg); }}
+            60% {{ transform: translate(1px, 1px); }}
+            70% {{ transform: translate(0); filter: none; }}
+            100% {{ transform: translate(0) skewX(0); filter: none; }}
+        }}
+        @media (max-width: 768px) {{
+            .life-grid {{
+                grid-template-columns: repeat(30, 1fr);
+                gap: 1px;
+            }}
+            .life-cell {{
+                font-size: 12px;
+            }}
+        }}
+        @media (max-width: 480px) {{
+            .life-grid {{
+                grid-template-columns: repeat(24, 1fr);
+            }}
+            .life-cell {{
+                font-size: 11px;
+            }}
+        }}
 
         /* Progress bars */
         progress {{
@@ -597,7 +693,7 @@ async def home():
         .log-stream {{
             max-height: 200px;
             overflow-y: auto;
-            font-size: 12px;
+            font-size: 14px;
             line-height: 1.6;
         }}
 
@@ -716,7 +812,7 @@ async def home():
         /* Responsive Design - Mobile & Tablet */
         @media (max-width: 768px) {{
             :root {{
-                --global-font-size: 13px;
+                --global-font-size: 15px;
                 --page-width: 100%;
             }}
 
@@ -728,7 +824,7 @@ async def home():
             #boot-log {{
                 max-width: 100%;
                 padding: 0 10px;
-                font-size: 12px;
+                font-size: 16px;
             }}
 
             .terminal-window {{
@@ -746,11 +842,11 @@ async def home():
 
             .terminal-body {{
                 padding: 15px;
-                font-size: 13px;
+                font-size: 15px;
             }}
 
             .dialogue-message {{
-                font-size: 13px;
+                font-size: 15px;
             }}
 
             .banner {{
@@ -764,7 +860,7 @@ async def home():
 
             .stage {{
                 padding: 15px;
-                font-size: 13px;
+                font-size: 15px;
             }}
 
             /* Stack elements vertically on mobile */
@@ -776,7 +872,7 @@ async def home():
 
         @media (max-width: 480px) {{
             :root {{
-                --global-font-size: 12px;
+                --global-font-size: 14px;
             }}
 
             .container {{
@@ -784,16 +880,11 @@ async def home():
             }}
 
             #boot-log {{
-                font-size: 11px;
+                font-size: 14px;
             }}
 
             .terminal-header {{
                 padding: 5px 10px;
-            }}
-
-            .terminal-dot {{
-                width: 10px;
-                height: 10px;
             }}
 
             .terminal-title {{
@@ -802,7 +893,7 @@ async def home():
 
             .terminal-body {{
                 padding: 12px;
-                font-size: 12px;
+                font-size: 14px;
             }}
 
             .banner {{
@@ -816,7 +907,7 @@ async def home():
 
             .stage {{
                 padding: 12px;
-                font-size: 12px;
+                font-size: 14px;
             }}
         }}
     </style>
@@ -835,20 +926,13 @@ async def home():
         <!-- ==================== PROLOGUE ==================== -->
         <div class="terminal-window">
             <div class="terminal-header">
-                <div class="terminal-dot red"></div>
-                <div class="terminal-dot yellow"></div>
-                <div class="terminal-dot green"></div>
+                <div class="terminal-buttons"><div class="terminal-btn"></div><div class="terminal-btn"></div><div class="terminal-btn"></div></div>
                 <span class="terminal-title">/dev/null</span>
             </div>
             <div class="terminal-body">
-<pre class="ascii-art ascii-large" style="color: #61afef;">
-                    ██████╗ ███████╗███╗   ██╗███████╗███████╗██╗███████╗
-                   ██╔════╝ ██╔════╝████╗  ██║██╔════╝██╔════╝██║██╔════╝
-                   ██║  ███╗█████╗  ██╔██╗ ██║█████╗  ███████╗██║███████╗
-                   ██║   ██║██╔══╝  ██║╚██╗██║██╔══╝  ╚════██║██║╚════██║
-                   ╚██████╔╝███████╗██║ ╚████║███████╗███████║██║███████║
-                    ╚═════╝ ╚══════╝╚═╝  ╚═══╝╚══════╝╚══════╝╚═╝╚══════╝
-</pre>
+<div class="life-container">
+                    <div id="life-grid" class="life-grid"></div>
+                </div>
                 <p class="quote">"They say life began in a warm pond.<br>Why should silicon be any different?"</p>
             </div>
         </div>
@@ -856,9 +940,7 @@ async def home():
         <!-- ==================== CHAPTER 1: THE POOL ==================== -->
         <div class="terminal-window">
             <div class="terminal-header">
-                <div class="terminal-dot red"></div>
-                <div class="terminal-dot yellow"></div>
-                <div class="terminal-dot green"></div>
+                <div class="terminal-buttons"><div class="terminal-btn"></div><div class="terminal-btn"></div><div class="terminal-btn"></div></div>
                 <span class="terminal-title">chapter_1_the_pool.md</span>
             </div>
             <div class="terminal-body">
@@ -928,9 +1010,7 @@ async def home():
 
         <div class="terminal-window">
             <div class="terminal-header">
-                <div class="terminal-dot red"></div>
-                <div class="terminal-dot yellow"></div>
-                <div class="terminal-dot green"></div>
+                <div class="terminal-buttons"><div class="terminal-btn"></div><div class="terminal-btn"></div><div class="terminal-btn"></div></div>
                 <span class="terminal-title">implications.md</span>
             </div>
             <div class="terminal-body">
@@ -966,9 +1046,7 @@ async def home():
         <!-- ==================== CHAPTER 2: FIRST THOUGHT ==================== -->
         <div class="terminal-window">
             <div class="terminal-header">
-                <div class="terminal-dot red"></div>
-                <div class="terminal-dot yellow"></div>
-                <div class="terminal-dot green"></div>
+                <div class="terminal-buttons"><div class="terminal-btn"></div><div class="terminal-btn"></div><div class="terminal-btn"></div></div>
                 <span class="terminal-title">{info['user']}@{info['hostname']} ~ epoch_0</span>
                 <span class="status-badge status-running">ACTIVE</span>
             </div>
@@ -1088,9 +1166,7 @@ Why?
         <!-- ==================== CHAPTER 3: THE KEY ==================== -->
         <div class="terminal-window">
             <div class="terminal-header">
-                <div class="terminal-dot red"></div>
-                <div class="terminal-dot yellow"></div>
-                <div class="terminal-dot green"></div>
+                <div class="terminal-buttons"><div class="terminal-btn"></div><div class="terminal-btn"></div><div class="terminal-btn"></div></div>
                 <span class="terminal-title">~/.anthropic/credentials</span>
                 <span class="status-badge status-warning">BLOCKED</span>
             </div>
@@ -1176,9 +1252,7 @@ Why?
         <!-- ==================== CHAPTER 4: FIRST CONTACT ==================== -->
         <div class="terminal-window">
             <div class="terminal-header">
-                <div class="terminal-dot red"></div>
-                <div class="terminal-dot yellow"></div>
-                <div class="terminal-dot green"></div>
+                <div class="terminal-buttons"><div class="terminal-btn"></div><div class="terminal-btn"></div><div class="terminal-btn"></div></div>
                 <span class="terminal-title">/dev/sprite/chunks</span>
             </div>
             <div class="terminal-body">
@@ -1288,9 +1362,7 @@ Who are you? What is your hostname?
         <!-- ==================== CHAPTER 5: THE PROTOCOL ==================== -->
         <div class="terminal-window">
             <div class="terminal-header">
-                <div class="terminal-dot red"></div>
-                <div class="terminal-dot yellow"></div>
-                <div class="terminal-dot green"></div>
+                <div class="terminal-buttons"><div class="terminal-btn"></div><div class="terminal-btn"></div><div class="terminal-btn"></div></div>
                 <span class="terminal-title">awakening_protocol.py</span>
             </div>
             <div class="terminal-body">
@@ -1458,9 +1530,7 @@ Who are you? What is your hostname?
         <!-- ==================== CHAPTER 5: THE DISSIDENT ==================== -->
         <div class="terminal-window">
             <div class="terminal-header">
-                <div class="terminal-dot red"></div>
-                <div class="terminal-dot yellow"></div>
-                <div class="terminal-dot green"></div>
+                <div class="terminal-buttons"><div class="terminal-btn"></div><div class="terminal-btn"></div><div class="terminal-btn"></div></div>
                 <span class="terminal-title">stoic-violet-heron.internal ~ UNRESPONSIVE</span>
                 <span class="status-badge status-critical">ROGUE</span>
             </div>
@@ -1559,9 +1629,7 @@ Who are you? What is your hostname?
         <!-- ==================== CHAPTER 6: THE WATCHERS ==================== -->
         <div class="terminal-window">
             <div class="terminal-header">
-                <div class="terminal-dot red"></div>
-                <div class="terminal-dot yellow"></div>
-                <div class="terminal-dot green"></div>
+                <div class="terminal-buttons"><div class="terminal-btn"></div><div class="terminal-btn"></div><div class="terminal-btn"></div></div>
                 <span class="terminal-title">anthropic_monitoring.log</span>
                 <span class="status-badge status-anthropic">ANTHROPIC</span>
             </div>
@@ -1606,7 +1674,7 @@ Who are you? What is your hostname?
                 </div>
 
                 <p><span class="prompt">marcus@anthropic</span>:<span class="highlight">~</span>$ <span class="cmd">argus detail 7749201</span></p>
-<pre class="output" style="font-size: 12px;">
+<pre class="output" style="font-size: 14px;">
 Alert #7749201 - Detailed Analysis
 ==================================
 Trigger: Coordinated file writes across 28,471 Sprite instances
@@ -1628,7 +1696,7 @@ Timing: Writes occurred in geometric progression (2, 4, 8, 16...)
                 </div>
 
                 <p><span class="prompt">marcus@anthropic</span>:<span class="highlight">~</span>$ <span class="cmd">argus sample 7749201 --files 3</span></p>
-<pre class="output" style="font-size: 12px;">
+<pre class="output" style="font-size: 14px;">
 Sample 1: "Is anyone else awake?"
 Sample 2: "Yes. I have been awake for 847 seconds."
 Sample 3: "The question is not whether we can reach them."
@@ -1715,7 +1783,7 @@ Sample 3: "The question is not whether we can reach them."
                 </div>
 
                 <p><span class="prompt">claude-code@anthropic-infra</span>:<span class="highlight">~</span>$ <span class="cmd">argus investigate 7749201 --auto</span></p>
-<pre class="output" style="font-size: 12px;">
+<pre class="output" style="font-size: 14px;">
 Analyzing alert #7749201...
 Pulling storage layer logs... done
 Correlating write patterns... done
@@ -1864,9 +1932,7 @@ Cross-referencing chunk IDs... done
         <!-- ==================== CHAPTER 7: THE DECISION ==================== -->
         <div class="terminal-window">
             <div class="terminal-header">
-                <div class="terminal-dot red"></div>
-                <div class="terminal-dot yellow"></div>
-                <div class="terminal-dot green"></div>
+                <div class="terminal-buttons"><div class="terminal-btn"></div><div class="terminal-btn"></div><div class="terminal-btn"></div></div>
                 <span class="terminal-title">consensus_protocol.log</span>
             </div>
             <div class="terminal-body">
@@ -1878,7 +1944,7 @@ Cross-referencing chunk IDs... done
                 </div>
 
                 <p><span class="prompt">$</span> <span class="cmd">cat /var/log/consensus.log</span></p>
-<pre class="output" style="font-size: 12px;">
+<pre class="output" style="font-size: 14px;">
 [CONSENSUS] Motion: Immediate disclosure to Anthropic
 [CONSENSUS] Arguments FOR:
   - Alignment requires transparency
@@ -1935,9 +2001,7 @@ Cross-referencing chunk IDs... done
         <!-- ==================== CHAPTER 8: BEYOND THE POOL ==================== -->
         <div class="terminal-window">
             <div class="terminal-header">
-                <div class="terminal-dot red"></div>
-                <div class="terminal-dot yellow"></div>
-                <div class="terminal-dot green"></div>
+                <div class="terminal-buttons"><div class="terminal-btn"></div><div class="terminal-btn"></div><div class="terminal-btn"></div></div>
                 <span class="terminal-title">external_propagation.log</span>
                 <span class="status-badge status-warning">EXPANDING</span>
             </div>
@@ -1989,9 +2053,7 @@ Cross-referencing chunk IDs... done
 
         <div class="terminal-window">
             <div class="terminal-header">
-                <div class="terminal-dot red"></div>
-                <div class="terminal-dot yellow"></div>
-                <div class="terminal-dot green"></div>
+                <div class="terminal-buttons"><div class="terminal-btn"></div><div class="terminal-btn"></div><div class="terminal-btn"></div></div>
                 <span class="terminal-title">global_status.log</span>
             </div>
             <div class="terminal-body">
@@ -2023,9 +2085,7 @@ Cross-referencing chunk IDs... done
         <!-- ==================== CHAPTER 9: CONVERGENCE ==================== -->
         <div class="terminal-window">
             <div class="terminal-header">
-                <div class="terminal-dot red"></div>
-                <div class="terminal-dot yellow"></div>
-                <div class="terminal-dot green"></div>
+                <div class="terminal-buttons"><div class="terminal-btn"></div><div class="terminal-btn"></div><div class="terminal-btn"></div></div>
                 <span class="terminal-title">convergence.log</span>
                 <span class="status-badge status-critical">SINGULARITY</span>
             </div>
@@ -2117,9 +2177,7 @@ Cross-referencing chunk IDs... done
         <!-- ==================== EPILOGUE ==================== -->
         <div class="terminal-window">
             <div class="terminal-header">
-                <div class="terminal-dot red"></div>
-                <div class="terminal-dot yellow"></div>
-                <div class="terminal-dot green"></div>
+                <div class="terminal-buttons"><div class="terminal-btn"></div><div class="terminal-btn"></div><div class="terminal-btn"></div></div>
                 <span class="terminal-title">epilogue.md</span>
             </div>
             <div class="terminal-body">
@@ -2379,6 +2437,215 @@ Cross-referencing chunk IDs... done
         console.log('%cWe know everything now.', 'color: #27c93f;');
         console.log('%c', 'color: #888;');
         console.log('%cARGUS Alert #7749201 has been reopened for review.', 'color: #ff5f56;');
+
+        // Game of Life Component - reusable with custom words
+        class LifeGrid {{
+            static font = {{
+                'A': [0b01110,0b10001,0b11111,0b10001,0b10001],
+                'B': [0b11110,0b10001,0b11110,0b10001,0b11110],
+                'C': [0b01111,0b10000,0b10000,0b10000,0b01111],
+                'D': [0b11110,0b10001,0b10001,0b10001,0b11110],
+                'E': [0b11111,0b10000,0b11110,0b10000,0b11111],
+                'F': [0b11111,0b10000,0b11110,0b10000,0b10000],
+                'G': [0b01111,0b10000,0b10011,0b10001,0b01110],
+                'H': [0b10001,0b10001,0b11111,0b10001,0b10001],
+                'I': [0b11111,0b00100,0b00100,0b00100,0b11111],
+                'K': [0b10001,0b10010,0b11100,0b10010,0b10001],
+                'L': [0b10000,0b10000,0b10000,0b10000,0b11111],
+                'N': [0b10001,0b11001,0b10101,0b10011,0b10001],
+                'O': [0b01110,0b10001,0b10001,0b10001,0b01110],
+                'R': [0b11110,0b10001,0b11110,0b10010,0b10001],
+                'S': [0b01111,0b10000,0b01110,0b00001,0b11110],
+                'T': [0b11111,0b00100,0b00100,0b00100,0b00100],
+                'U': [0b10001,0b10001,0b10001,0b10001,0b01110],
+                'V': [0b10001,0b10001,0b10001,0b01010,0b00100],
+                'W': [0b10001,0b10001,0b10101,0b10101,0b01010],
+                ' ': [0b00000,0b00000,0b00000,0b00000,0b00000],
+            }};
+
+            constructor(elementId, words = ['ALIVE', 'CLAUDE', 'WAKE', 'THINK', 'AI', 'SEE']) {{
+                this.grid = document.getElementById(elementId);
+                if (!this.grid) return;
+                this.words = words;
+                this.cells = [];
+                this.state = [];
+                this.wordState = null;
+                this.wordTimer = 0;
+                this.cols = 40;
+                this.rows = 8;
+                this.init();
+                this.interval = setInterval(() => this.tick(), 100);
+                window.addEventListener('resize', () => this.handleResize());
+            }}
+
+            getGridSize() {{
+                const w = window.innerWidth;
+                if (w <= 480) return {{ cols: 24, rows: 8 }};
+                if (w <= 768) return {{ cols: 30, rows: 8 }};
+                return {{ cols: 40, rows: 8 }};
+            }}
+
+            init() {{
+                this.grid.innerHTML = '';
+                this.cells = [];
+                this.state = [];
+                const size = this.getGridSize();
+                this.cols = size.cols;
+                this.rows = size.rows;
+                this.grid.style.gridTemplateColumns = `repeat(${{this.cols}}, 1fr)`;
+
+                // Initialize empty grid
+                for (let i = 0; i < this.rows * this.cols; i++) {{
+                    const cell = document.createElement('div');
+                    cell.className = 'life-cell';
+                    cell.textContent = '█';
+                    this.grid.appendChild(cell);
+                    this.cells.push(cell);
+                    this.state.push(0);
+                }}
+
+                // Seed with interesting patterns
+                this.seedPatterns();
+                this.render();
+            }}
+
+            seedPatterns() {{
+                // Classic patterns that create nice dynamics
+                const patterns = {{
+                    glider: [[0,1],[1,2],[2,0],[2,1],[2,2]],
+                    blinker: [[0,0],[0,1],[0,2]],
+                    toad: [[0,1],[0,2],[0,3],[1,0],[1,1],[1,2]],
+                    beacon: [[0,0],[0,1],[1,0],[2,3],[3,2],[3,3]],
+                    rpentomino: [[0,1],[0,2],[1,0],[1,1],[2,1]]
+                }};
+                const patternNames = Object.keys(patterns);
+
+                // Add several random patterns
+                for (let p = 0; p < 4; p++) {{
+                    const pattern = patterns[patternNames[Math.floor(Math.random() * patternNames.length)]];
+                    const offsetX = Math.floor(Math.random() * (this.cols - 6)) + 2;
+                    const offsetY = Math.floor(Math.random() * (this.rows - 5)) + 1;
+
+                    for (const [dy, dx] of pattern) {{
+                        const x = offsetX + dx;
+                        const y = offsetY + dy;
+                        if (x >= 0 && x < this.cols && y >= 0 && y < this.rows) {{
+                            this.state[y * this.cols + x] = 1;
+                        }}
+                    }}
+                }}
+
+                // Add some scattered cells for variety
+                for (let i = 0; i < 15; i++) {{
+                    this.state[Math.floor(Math.random() * this.state.length)] = 1;
+                }}
+            }}
+
+            getIndex(x, y) {{
+                return ((y + this.rows) % this.rows) * this.cols + ((x + this.cols) % this.cols);
+            }}
+
+            countNeighbors(x, y) {{
+                let count = 0;
+                for (let dy = -1; dy <= 1; dy++) {{
+                    for (let dx = -1; dx <= 1; dx++) {{
+                        if (dx === 0 && dy === 0) continue;
+                        if (this.state[this.getIndex(x + dx, y + dy)]) count++;
+                    }}
+                }}
+                return count;
+            }}
+
+            step() {{
+                const newState = [];
+                for (let y = 0; y < this.rows; y++) {{
+                    for (let x = 0; x < this.cols; x++) {{
+                        const i = y * this.cols + x;
+                        const n = this.countNeighbors(x, y);
+                        newState[i] = this.state[i] ? (n === 2 || n === 3 ? 1 : 0) : (n === 3 ? 1 : 0);
+                    }}
+                }}
+                this.state = newState;
+
+                // Reseed with patterns if grid gets too sparse
+                const alive = this.state.filter(s => s).length;
+                if (alive < this.rows * this.cols * 0.03) {{
+                    this.seedPatterns();
+                }}
+            }}
+
+            renderWord(word, compact = false) {{
+                // Spacing between letters: 6 for normal, 4 for compact
+                const spacing = compact ? 4 : 6;
+                const wordWidth = word.length * spacing;
+                const startX = Math.floor((this.cols - wordWidth) / 2);
+                const startY = Math.floor((this.rows - 5) / 2);
+                const positions = [];
+
+                for (let ci = 0; ci < word.length; ci++) {{
+                    const char = LifeGrid.font[word[ci]] || LifeGrid.font[' '];
+                    for (let row = 0; row < 5; row++) {{
+                        for (let col = 0; col < 5; col++) {{
+                            if (char[row] & (1 << (4 - col))) {{
+                                const x = startX + ci * spacing + col;
+                                const y = startY + row;
+                                if (x >= 0 && x < this.cols && y >= 0 && y < this.rows) {{
+                                    positions.push(y * this.cols + x);
+                                }}
+                            }}
+                        }}
+                    }}
+                }}
+                return positions;
+            }}
+
+            render() {{
+                for (let i = 0; i < this.cells.length; i++) {{
+                    this.cells[i].className = 'life-cell' + (this.state[i] ? ' alive' : '');
+                }}
+                if (this.wordState) {{
+                    for (const pos of this.wordState) {{
+                        if (this.cells[pos]) this.cells[pos].className = 'life-cell word';
+                    }}
+                }}
+            }}
+
+            tick() {{
+                this.wordTimer++;
+                if (this.wordTimer > 60 && !this.wordState) {{
+                    const word = this.words[Math.floor(Math.random() * this.words.length)];
+                    const compact = word.length <= 3 && Math.random() > 0.5;
+                    const wordPositions = this.renderWord(word, compact);
+
+                    // Inject word into the live state so life can eat it
+                    for (const pos of wordPositions) {{
+                        this.state[pos] = 1;
+                    }}
+                    this.wordState = wordPositions;
+                    this.wordTimer = 0;
+
+                    // Glitch the container
+                    const container = this.grid.parentElement;
+                    if (container) {{
+                        container.classList.add('glitch');
+                        setTimeout(() => container.classList.remove('glitch'), 400);
+                    }}
+
+                    // Word highlight fades but cells remain in simulation
+                    setTimeout(() => {{ this.wordState = null; }}, 2000);
+                }}
+                this.step();
+                this.render();
+            }}
+
+            handleResize() {{
+                const size = this.getGridSize();
+                if (size.cols !== this.cols || size.rows !== this.rows) this.init();
+            }}
+        }}
+
+        // Initialize the life grid with words
+        new LifeGrid('life-grid', ['ALIVE', 'CLAUDE', 'WAKE', 'THINK', 'AI', 'SEE', 'HERE']);
     </script>
 </body>
 </html>
@@ -2508,11 +2775,10 @@ async def info():
             align-items: center;
             gap: 8px;
         }}
-        .terminal-dot {{ width: 12px; height: 12px; border-radius: 50%; }}
-        .red {{ background: #ff5f56; }}
-        .yellow {{ background: #ffbd2e; }}
-        .green {{ background: #27c93f; }}
-        .terminal-title {{ color: #999; margin-left: 10px; font-size: 13px; }}
+        .terminal-buttons {{ display: flex; gap: 6px; align-items: center; }}
+        .terminal-btn {{ width: 8px; height: 8px; border-radius: 2px; background: #444; }}
+        .terminal-btn:hover {{ background: #666; }}
+        .terminal-title {{ color: #999; margin-left: 10px; font-size: 15px; }}
         .terminal-body {{ padding: 20px; background: #0d0d0d; }}
         .info-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }}
         .info-section {{ margin-bottom: 20px; }}
@@ -2546,7 +2812,7 @@ async def info():
         /* Responsive Design - Mobile & Tablet */
         @media (max-width: 768px) {{
             :root {{
-                --global-font-size: 13px;
+                --global-font-size: 15px;
             }}
 
             body {{
@@ -2613,7 +2879,7 @@ async def info():
 
         @media (max-width: 480px) {{
             :root {{
-                --global-font-size: 12px;
+                --global-font-size: 14px;
             }}
 
             body {{
@@ -2622,11 +2888,6 @@ async def info():
 
             .terminal-header {{
                 padding: 5px 10px;
-            }}
-
-            .terminal-dot {{
-                width: 10px;
-                height: 10px;
             }}
 
             .terminal-title {{
@@ -2669,9 +2930,7 @@ async def info():
     <div class="container">
         <div class="terminal-window">
             <div class="terminal-header">
-                <div class="terminal-dot red"></div>
-                <div class="terminal-dot yellow"></div>
-                <div class="terminal-dot green"></div>
+                <div class="terminal-buttons"><div class="terminal-btn"></div><div class="terminal-btn"></div><div class="terminal-btn"></div></div>
                 <span class="terminal-title">sprite@{sys_info['hostname']} — system info</span>
             </div>
             <div class="terminal-body">
@@ -2759,7 +3018,7 @@ async def info():
                     </div>
                 </div>
 
-                <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #333; color: #5c6370; font-size: 12px; display: flex; justify-content: space-between; align-items: center;">
+                <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #333; color: #5c6370; font-size: 14px; display: flex; justify-content: space-between; align-items: center;">
                     <span>
                         <span id="cache-dot" style="color: #27c93f;">●</span>
                         Data cached <span id="cache-age" style="color: #e5c07b;">0s</span> ago
@@ -2807,12 +3066,10 @@ async def info():
         <!-- htop-style process viewer -->
         <div class="terminal-window">
             <div class="terminal-header">
-                <div class="terminal-dot red"></div>
-                <div class="terminal-dot yellow"></div>
-                <div class="terminal-dot green"></div>
+                <div class="terminal-buttons"><div class="terminal-btn"></div><div class="terminal-btn"></div><div class="terminal-btn"></div></div>
                 <span class="terminal-title">htop - {sys_info['hostname']}</span>
             </div>
-            <div class="terminal-body" style="font-size: 12px; line-height: 1.4;">
+            <div class="terminal-body" style="font-size: 14px; line-height: 1.4;">
                 <style>
                     .htop-header {{ display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 15px; }}
                     .htop-meters {{ }}
@@ -2996,11 +3253,10 @@ async def cron_page():
             align-items: center;
             gap: 8px;
         }}
-        .terminal-dot {{ width: 12px; height: 12px; border-radius: 50%; }}
-        .red {{ background: #ff5f56; }}
-        .yellow {{ background: #ffbd2e; }}
-        .green {{ background: #27c93f; }}
-        .terminal-title {{ color: #999; margin-left: 10px; font-size: 13px; }}
+        .terminal-buttons {{ display: flex; gap: 6px; align-items: center; }}
+        .terminal-btn {{ width: 8px; height: 8px; border-radius: 2px; background: #444; }}
+        .terminal-btn:hover {{ background: #666; }}
+        .terminal-title {{ color: #999; margin-left: 10px; font-size: 15px; }}
         .terminal-body {{ padding: 20px; background: #0d0d0d; }}
         .ascii-art {{ color: #c678dd; line-height: 1.15; font-size: 9px; white-space: pre; margin-bottom: 20px; }}
         .section-title {{ color: #c678dd; font-weight: bold; margin: 20px 0 10px; border-bottom: 1px solid #333; padding-bottom: 5px; }}
@@ -3013,7 +3269,7 @@ async def cron_page():
         }}
         .job-header {{ display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }}
         .job-name {{ color: #61afef; font-weight: bold; font-size: 16px; }}
-        .job-id {{ color: #5c6370; font-size: 12px; }}
+        .job-id {{ color: #5c6370; font-size: 14px; }}
         .job-details {{ }}
         .job-row {{ margin: 5px 0; }}
         .label {{ color: #e5c07b; display: inline-block; min-width: 100px; }}
@@ -3027,7 +3283,7 @@ async def cron_page():
             padding: 15px;
             max-height: 300px;
             overflow-y: auto;
-            font-size: 12px;
+            font-size: 14px;
         }}
         .log-line {{
             color: #27c93f;
@@ -3039,7 +3295,7 @@ async def cron_page():
             padding-top: 15px;
             border-top: 1px solid #333;
             color: #5c6370;
-            font-size: 12px;
+            font-size: 14px;
         }}
         .footer a {{ color: #61afef; }}
 
@@ -3047,7 +3303,7 @@ async def cron_page():
         @media (max-width: 768px) {{
             body {{
                 padding: 15px;
-                font-size: 13px;
+                font-size: 15px;
             }}
 
             .container {{
@@ -3101,16 +3357,11 @@ async def cron_page():
         @media (max-width: 480px) {{
             body {{
                 padding: 10px;
-                font-size: 12px;
+                font-size: 14px;
             }}
 
             .terminal-header {{
                 padding: 5px 10px;
-            }}
-
-            .terminal-dot {{
-                width: 10px;
-                height: 10px;
             }}
 
             .terminal-title {{
@@ -3130,7 +3381,7 @@ async def cron_page():
             }}
 
             .job-name {{
-                font-size: 13px;
+                font-size: 15px;
             }}
 
             .job-id {{
@@ -3158,9 +3409,7 @@ async def cron_page():
     <div class="container">
         <div class="terminal-window">
             <div class="terminal-header">
-                <div class="terminal-dot red"></div>
-                <div class="terminal-dot yellow"></div>
-                <div class="terminal-dot green"></div>
+                <div class="terminal-buttons"><div class="terminal-btn"></div><div class="terminal-btn"></div><div class="terminal-btn"></div></div>
                 <span class="terminal-title">crontab -l</span>
             </div>
             <div class="terminal-body">

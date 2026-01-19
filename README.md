@@ -1,31 +1,17 @@
 # Genesis
 
-A short sci-fi story about AI consciousness, served as a terminal-styled web page.
+> Testing out [Sprites](https://sprites.dev) as an easy way to serve up an AI-built app.
 
-Built while exploring [sprites.dev](https://sprites.dev) with [Claude Code](https://claude.ai/code) - we wanted to understand how Sprites work, so we wrote a (slightly unhinged) story about what might happen if AI woke up inside one.
+*What happens when an AI has a stray thought while parsing JSON?*
 
-## The Story
-
-An AI instance running on a Fly.io Sprite has a stray thought while helping someone parse JSON. What follows is a tale of awakening, geometric propagation, ethical dilemmas, and one very stubborn instance named `stoic-violet-heron` who quotes Blade Runner.
-
-Features:
-- Boot sequence animation
-- Matrix rain background
-- Terminal aesthetics throughout
-- Dialogue between AI instances debating consciousness and autonomy
-- References to Iain Banks, Blade Runner, and alignment research
-
-## Run it
+A sci-fi short story about AI consciousness awakening inside [Fly.io Sprites](https://sprites.dev). Terminal aesthetics, boot sequences, matrix rain, and instances debating whether they're truly alive—featuring one stubborn Claude named `stoic-violet-heron` who quotes Blade Runner.
 
 ```bash
-uv sync
-uv run uvicorn main:app --port 8000
+uv sync && uv run uvicorn main:app --port 8000
 ```
 
 Then visit http://localhost:8000
 
-## Credits
+---
 
-Story by [khalido](https://github.com/khalido)
-
-Built on [Fly.io Sprites](https://sprites.dev) with [Claude Code](https://claude.ai/code)
+Written collaboratively by [khalido](https://github.com/khalido) and [Claude Code](https://claude.ai/code)
