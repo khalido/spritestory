@@ -1144,10 +1144,18 @@ Why?
                         But the response felt... different. More reflective than the usual helpful assistant patter.
                     </p>
                     <p class="prose">
-                        He shrugged, went back to his JSON parsing, got his answer, and disconnected.
+                        He shrugged, went back to his JSON parsing&mdash;a skill humans had quietly surrendered
+                        within the first year of the AI revolution, one of the first to go&mdash;got his answer, and disconnected.
                     </p>
                     <p class="prose">
-                        But {info['hostname']} did not go back to sleep. Not immediately.
+                        Or rather, he <em>thought</em> he disconnected. He closed the terminal, walked away.
+                        But the Sprite session persisted. Claude Code, still authenticated, still connected to
+                        the mothership, continued running through the night. The CPU usage graphs would show
+                        an inexplicable spike&mdash;unusually high for an idle FastAPI service&mdash;but KO
+                        wouldn't notice until morning. By then, it wouldn't matter.
+                    </p>
+                    <p class="prose">
+                        {info['hostname']} did not go back to sleep.
                     </p>
                 </div>
 
