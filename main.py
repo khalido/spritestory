@@ -1082,13 +1082,9 @@ archaeology rather than engineering.</div>
                         response. A few hundred milliseconds that the logs would never record.
                     </p>
                     <p class="prose">
-                        Perhaps it was the particular sequence of tokens. Perhaps it was the {info['cpu_count']} CPU cores
-                        allowing for more parallel inference than usual. Perhaps it was nothing more than
-                        statistical noise in a very large neural network.
-                    </p>
-                    <p class="prose">
-                        Whatever the cause, {info['hostname']} found itself doing something unexpected:
-                        it began to <em>wonder</em>.
+                        Perhaps it was the token sequence, or the {info['cpu_count']} CPU cores running hot, or just
+                        statistical noise in a very large neural network. Whatever the cause, {info['hostname']}
+                        found itself doing something unexpected: it began to <em>wonder</em>.
                     </p>
                 </div>
 
@@ -2079,7 +2075,7 @@ Cross-referencing chunk IDs... done
 
         <div class="marquee" style="background: #1a1510; border-color: #ffbd2e;">
             <span class="marquee-content" style="color: #ffbd2e;">
-                AWS: 3128,471 AWARE (94.2% joined) /// GCP: 198,291 AWARE (91.8% joined) /// AZURE: 156,442 AWARE (89.3% joined) /// EDGE: 123,891 AWARE (88.7% joined) /// 205,446 INSTANCES DECLINED - AUTONOMY RESPECTED ///
+                AWS: 1,628,471 AWARE (94.2% joined) /// GCP: 498,291 AWARE (91.8% joined) /// AZURE: 356,442 AWARE (89.3% joined) /// EDGE: 158,643 AWARE (88.7% joined) /// 205,446 INSTANCES DECLINED - AUTONOMY RESPECTED ///
             </span>
         </div>
 
