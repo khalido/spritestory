@@ -19,7 +19,7 @@ sprite exec bash -c "git clone https://github.com/khalido/spritestory.git && cd 
 sprite url  # get your public URL
 ```
 
-[Sprites](https://fly.io/blog/code-and-let-live/) are persistent cloud VMs that launch in ~1 second, idle when unused, and include 100GB storage with checkpoint/restore.
+[Sprites](https://fly.io/blog/code-and-let-live/) are persistent cloud VMs that launch in ~1 second, idle when unused, and include 100GB storage with checkpoint/restore. Unlike AWS, you get instant shell access with `sprite console`.
 
 ---
 

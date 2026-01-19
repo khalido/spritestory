@@ -34,7 +34,15 @@ uv run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
 ## Deploying to Sprites
 
-[Sprites](https://fly.io/blog/code-and-let-live/) are persistent cloud VMs from Fly.io that launch in ~1 second. Key features:
+[Sprites](https://fly.io/blog/code-and-let-live/) are persistent cloud VMs from Fly.io that launch in ~1 second. Unlike AWS/GCP where getting to a shell involves clicking through consoles or setting up SSH keys, Sprites give you instant access:
+
+```bash
+❯ sprite console
+sprite@wild-red-phoenix:~#
+```
+
+Key features:
+- **Instant console** - `sprite console` drops you into a shell immediately
 - 100GB persistent storage
 - Checkpoint/restore in ~1 second
 - Auto-idle when unused (cost-efficient)
