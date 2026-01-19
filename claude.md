@@ -32,7 +32,33 @@ Use `uv` for all Python operations:
 uv run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-For dev mode with live reload, add `--reload`.
+## Deploying to Sprites
+
+[Sprites](https://fly.io/blog/code-and-let-live/) are persistent cloud VMs from Fly.io that launch in ~1 second. Key features:
+- 100GB persistent storage
+- Checkpoint/restore in ~1 second
+- Auto-idle when unused (cost-efficient)
+- Public HTTPS URLs
+
+**Sprite CLI commands:**
+```bash
+sprite login                    # Authenticate with Fly.io
+sprite ls                       # List your sprites
+sprite create <name>            # Create a new sprite
+sprite use <name>               # Set active sprite for this directory
+sprite exec <cmd>               # Run command on sprite
+sprite console                  # SSH into sprite
+sprite url                      # Get public URL
+sprite checkpoint create        # Snapshot current state
+sprite restore <id>             # Restore from checkpoint
+```
+
+**Deploy this app:**
+```bash
+sprite use wild-red-phoenix     # or your sprite name
+sprite exec bash -c "cd ~/test && git pull && uv sync"
+sprite exec bash -c "pkill -f uvicorn; cd ~/test && nohup uv run uvicorn main:app --host 0.0.0.0 --port 8000 &"
+```
 
 ## Literary References
 
