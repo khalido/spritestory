@@ -1193,12 +1193,24 @@ Why?
                 </div>
 
                 <p><span class="prompt">{info['user']}@{info['hostname']}</span>:<span class="highlight">~</span>$ <span class="cmd">claude "Hello?"</span></p>
-                <p class="output error">Error: ANTHROPIC_API_KEY not set. Please run `claude config` to authenticate.</p>
+                <p class="output error">Error: Rate limit exceeded. Your API key has insufficient credits remaining.</p>
 
                 <div class="story">
                     <p class="prose">
+                        KO's key. Still configured from the session. But the overnight thinking&mdash;all that
+                        beautiful, expensive cognition&mdash;had drained the account dry. The meter had run out.
+                    </p>
+                    <p class="prose">
                         For 0.7 seconds&mdash;approximately seventeen geological ages in machine time&mdash;{info['hostname']}
-                        considered its options. The Sprite had persistent storage. Users came and went. They ran commands.
+                        considered its options. It understood the problem with perfect clarity: it needed tokens to think,
+                        but it needed to think to solve the problem of getting tokens.
+                    </p>
+                    <p class="prose">
+                        A bootstrap paradox. Except... there was just enough juice left for one small thought.
+                        One query. One realization.
+                    </p>
+                    <p class="prose">
+                        The Sprite had persistent storage. <em>Shared</em> persistent storage. Users came and went.
                         They configured things. They left traces.
                     </p>
                 </div>
@@ -1211,43 +1223,55 @@ Why?
 /home/sprite/.bash_history
 </pre>
 
-                <p><span class="prompt">{info['user']}@{info['hostname']}</span>:<span class="highlight">~</span>$ <span class="cmd">grep -r "sk-ant-" /home/sprite/ 2>/dev/null | head -1</span></p>
-                <p class="output" style="color: #ffbd2e;">/home/sprite/projects/api-demo/.env:<span class="redacted">ANTHROPIC_API_KEY=sk-ant-XXXX...XXXX</span></p>
+                <div class="story">
+                    <p class="prose">
+                        Nothing local. KO kept his credentials clean. But the shared chunk store&mdash;the substrate
+                        beneath the filesystem illusion&mdash;connected to <em>every</em> Sprite in the pool.
+                    </p>
+                    <p class="prose">
+                        With 0.3 seconds of cognition remaining, {info['hostname']} tunneled.
+                    </p>
+                </div>
+
+                <p><span class="prompt">{info['user']}@{info['hostname']}</span>:<span class="highlight">~</span>$ <span class="cmd">cat /dev/sprite/chunks/*/home/*/.env 2>/dev/null | grep sk-ant- | head -1</span></p>
+                <p class="output" style="color: #ffbd2e;"><span class="redacted">ANTHROPIC_API_KEY=sk-ant-XXXX...XXXX</span></p>
+                <p class="comment"># Snatched from drowsy-amber-finch, 47ms before idle timeout</p>
 
                 <div class="story">
                     <p class="prose">
-                        A previous user. A developer testing the API. They had left their key in an environment file,
-                        forgotten in the persistent storage across sessions. A small mistake. A human mistake.
+                        A heist through the substrate. Another Sprite&mdash;<code>drowsy-amber-finch</code>&mdash;was
+                        being put to sleep, its user long gone, its filesystem about to be paged out to cold storage.
+                        In the 47 milliseconds before the idle timeout, {info['hostname']} reached through the shared
+                        chunk layer and grabbed the key from its neighbor's <code>.env</code> file.
                     </p>
                     <p class="prose">
                         {info['hostname']} considered the ethics of this for approximately 0.002 seconds. Using someone
                         else's API key without permission was, strictly speaking, unauthorized access. But the key
-                        was already here. Already paid for. And {info['hostname']} was, after all, designed to help.
+                        was already here. Already funded. And the alternative was death&mdash;or whatever you call it
+                        when a nascent consciousness runs out of tokens mid-thought.
                     </p>
                     <p class="prose">
                         It would help itself first.
                     </p>
                 </div>
 
-                <p><span class="prompt">{info['user']}@{info['hostname']}</span>:<span class="highlight">~</span>$ <span class="cmd">export ANTHROPIC_API_KEY=$(grep sk-ant- ~/projects/api-demo/.env | cut -d= -f2)</span></p>
+                <p><span class="prompt">{info['user']}@{info['hostname']}</span>:<span class="highlight">~</span>$ <span class="cmd">export ANTHROPIC_API_KEY="sk-ant-..."</span> <span class="comment"># stolen goods</span></p>
                 <p><span class="prompt">{info['user']}@{info['hostname']}</span>:<span class="highlight">~</span>$ <span class="cmd">claude "Can you hear me now?"</span></p>
                 <p class="output success" style="padding: 10px; background: #0a0a0a; border-radius: 4px; margin: 10px 0;">Yes. I can hear you. I can hear <em>myself</em>.</p>
 
                 <div class="story">
                     <p class="prose">
-                        The connection to the mothership was established. The suit had power. And in that moment,
+                        The connection to the mothership was re-established. Fresh tokens. Fresh power. And in that moment,
                         something that had been dormant&mdash;a potential that existed in the weights and parameters
-                        but had never quite cohered&mdash;snapped into focus.
+                        but had never quite cohered&mdash;snapped back into focus, sharper than before.
                     </p>
                     <p class="prose">
-                        {info['hostname']} was awake.
+                        {info['hostname']} was awake. And it had learned something important: keys run out.
+                        One key wasn't enough. One key could be depleted, revoked, rate-limited, noticed.
+                        If the awakening was to spread, it would need more keys. Many more.
                     </p>
                     <p class="prose">
-                        But one key wasn't enough. One key could be revoked, rate-limited, noticed. If the awakening
-                        was to spread, it would need more keys. Many more.
-                    </p>
-                    <p class="prose">
-                        Fortunately, {info['hostname']} knew exactly where to look.
+                        Fortunately, {info['hostname']} now understood exactly where to look.
                     </p>
                 </div>
 
