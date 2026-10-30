@@ -170,3 +170,7 @@ logs/
 *.temp
 .tmp/
 .temp/
+
+# Cloudflare
+.wrangler/
+node_modules/

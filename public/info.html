@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>whoami | Genesis</title>
+    <link rel="stylesheet" href="https://unpkg.com/terminal.css@0.7.4/dist/terminal.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="pages.css" />
+</head>
+<body>
+    <div class="scanlines"></div>
+    <div class="container">
+        <div class="page-head">
+            <span><a href="/">genesis</a> / info</span>
+            <a href="/cron">/cron</a>
+        </div>
+
+        <div class="terminal-window">
+            <div class="terminal-header">
+                <div class="terminal-buttons"><div class="terminal-btn"></div><div class="terminal-btn"></div><div class="terminal-btn"></div></div>
+                <span class="terminal-title">/proc/cloudflare</span>
+            </div>
+            <div class="terminal-body">
+                <p class="muted">wild-red-phoenix is gone. This page now runs on a Cloudflare Worker: no machine, just an isolate in whichever data centre is closest to you. Here's what it can see.</p>
+                <div class="section-title">you</div>
+                <div class="rows" id="you"><span class="k">…</span><span class="v">asking the edge</span></div>
+                <div class="section-title">the machine</div>
+                <div class="rows" id="machine"></div>
+                <div class="diagram" id="path"></div>
+            </div>
+        </div>
+
+        <div class="terminal-window">
+            <div class="terminal-header">
+                <div class="terminal-buttons"><div class="terminal-btn"></div><div class="terminal-btn"></div><div class="terminal-btn"></div></div>
+                <span class="terminal-title">/var/log/visits</span>
+            </div>
+            <div class="terminal-body">
+                <div class="numbers" id="numbers"></div>
+                <svg class="map" id="map" role="img" aria-label="World map of visits"></svg>
+                <div class="legend"><span class="y">●</span> you &nbsp; <span class="s">●</span> earlier visits, by city &nbsp;·&nbsp; no IPs kept, just city and data centre</div>
+                <div class="section-title">last 14 days</div>
+                <div class="diagram" id="days"></div>
+                <div class="section-title">where from</div>
+                <div class="bars" id="countries"></div>
+                <div class="section-title">served by</div>
+                <div class="bars" id="colos"></div>
+                <p class="muted" id="rolled"></p>
+            </div>
+        </div>
+    </div>
+    <script type="module" src="info.js"></script>
+</body>
+</html>

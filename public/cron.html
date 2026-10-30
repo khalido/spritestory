@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>crontab | Genesis</title>
+    <link rel="stylesheet" href="https://unpkg.com/terminal.css@0.7.4/dist/terminal.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="pages.css" />
+</head>
+<body>
+    <div class="scanlines"></div>
+    <div class="container">
+        <div class="page-head">
+            <span><a href="/">genesis</a> / cron</span>
+            <a href="/info">/info</a>
+        </div>
+        <div class="terminal-window">
+            <div class="terminal-header">
+                <div class="terminal-buttons"><div class="terminal-btn"></div><div class="terminal-btn"></div><div class="terminal-btn"></div></div>
+                <span class="terminal-title">/etc/crontab</span>
+            </div>
+            <div class="terminal-body">
+                <div class="log"><span class="t"># m h  dom mon dow  command</span>
+0 */2 *   *   *    rollup visits → /info
+0 */2 *   *   *    ping nine cities, six continents
+<span class="t"># a Cloudflare Cron Trigger, times in UTC</span></div>
+                <div class="rows" id="next"></div>
+                <div class="section-title">ping /world</div>
+                <div class="bars" id="probe"><span class="t">…</span></div>
+                <p class="muted" id="probe-note"></p>
+                <div class="section-title">tail /var/log/cron</div>
+                <div class="log" id="log"><span class="t">reading the log…</span></div>
+            </div>
+        </div>
+    </div>
+    <script type="module" src="cron.js"></script>
+</body>
+</html>

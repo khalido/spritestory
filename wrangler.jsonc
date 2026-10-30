@@ -1,0 +1,17 @@
+{
+  "name": "spritestory",
+  "account_id": "9a4e0c2820df0f1e23a1aa3a83c491e6",
+  "compatibility_date": "2026-10-28",
+  "main": "src/worker.ts",
+  "routes": [{ "pattern": "sprite.khalido.dev", "custom_domain": true }],
+  // Static files go straight out; /api/* has no file, so it reaches the Worker
+  "assets": { "directory": "./public", "binding": "ASSETS" },
+  "d1_databases": [
+    { "binding": "DB", "database_name": "spritestory", "database_id": "e69f30c1-3245-4d5e-92f1-1f41ca17d870" }
+  ],
+  // Visit logging: 6 a minute per IP
+  "ratelimits": [{ "name": "VISIT_LIMIT", "namespace_id": "2001", "simple": { "limit": 6, "period": 60 } }],
+  // The rollup behind /info and /cron, every 2 hours like the Sprite's old heartbeat
+  "triggers": { "crons": ["0 */2 * * *"] },
+  "observability": { "enabled": true }
+}
