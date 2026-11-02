@@ -587,4 +587,4 @@ a:hover { color: #98c379; }
 
 .haiku { color: #c678dd; font-style: italic; line-height: 1.7; margin: 18px 0; }
 sup.fn a { text-decoration: none; padding: 0 2px; }
-#fn-warning:target { outline: 1px dashed #c678dd; outline-offset: 6px; }
+#fn-warning:target, #fn-routes:target { outline: 1px dashed #c678dd; outline-offset: 6px; }
